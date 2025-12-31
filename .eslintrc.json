@@ -1,0 +1,405 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "import",
+    "functional"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "import/resolver": {
+      "typescript": true,
+      "node": true
+    }
+  },
+  "rules": {
+    // ============================================
+    // TYPESCRIPT STRICT TYPING RULES
+    // ============================================
+    
+    // NO 'any' type allowed
+    "@typescript-eslint/no-explicit-any": "error",
+    
+    // Require explicit return types on functions
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true,
+        "allowHigherOrderFunctions": true,
+        "allowDirectConstAssertionInArrowFunctions": true,
+        "allowConciseArrowFunctionExpressionsStartingWithVoid": false
+      }
+    ],
+    
+    // Require explicit types for module exports
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    
+    // Disallow unsafe type assertions
+    "@typescript-eslint/no-unsafe-assignment": "error",
+    "@typescript-eslint/no-unsafe-member-access": "error",
+    "@typescript-eslint/no-unsafe-call": "error",
+    "@typescript-eslint/no-unsafe-return": "error",
+    
+    // Prefer nullish coalescing (??) over ||
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    
+    // Prefer optional chaining (?.)
+    "@typescript-eslint/prefer-optional-chain": "error",
+    
+    // No unused variables (except those prefixed with _)
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    
+    // Enforce consistent type imports
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    
+    // ============================================
+    // CODE COMPLEXITY RULES
+    // ============================================
+    
+    // Max function length (50 lines from .cursorrules)
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 50,
+        "skipBlankLines": true,
+        "skipComments": true,
+        "IIFEs": true
+      }
+    ],
+    
+    // Max file length (200 lines from .cursorrules)
+    "max-lines": [
+      "error",
+      {
+        "max": 200,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    
+    // Limit function parameters to encourage simplicity
+    "max-params": ["error", 4],
+    
+    // Limit nested callbacks/blocks
+    "max-depth": ["error", 3],
+    
+    // Limit cyclomatic complexity
+    "complexity": ["error", 10],
+    
+    // ============================================
+    // REACT & HOOKS RULES
+    // ============================================
+    
+    // Enforce hook dependency array correctness
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    
+    // Prefer function components
+    "react/prefer-stateless-function": "error",
+    
+    // Enforce props destructuring for clarity
+    "react/destructuring-assignment": ["error", "always"],
+    
+    // No unused prop types
+    "react/no-unused-prop-types": "error",
+    
+    // Require default props for optional props
+    "react/require-default-props": "off", // TypeScript handles this
+    
+    // No array index as key (performance issue)
+    "react/no-array-index-key": "warn",
+    
+    // Self-closing tags for components without children
+    "react/self-closing-comp": "error",
+    
+    // No children in void DOM elements
+    "react/void-dom-elements-no-children": "error",
+    
+    // Disable React in scope (not needed in React 17+)
+    "react/react-in-jsx-scope": "off",
+    
+    // Enforce consistent JSX attribute formatting
+    "react/jsx-curly-brace-presence": [
+      "error",
+      {
+        "props": "never",
+        "children": "never"
+      }
+    ],
+    
+    // ============================================
+    // FUNCTIONAL PROGRAMMING RULES
+    // ============================================
+
+    // Prefer const over let
+    "prefer-const": "error",
+
+    // No var declarations
+    "no-var": "error",
+
+    // Prefer arrow functions for callbacks
+    "prefer-arrow-callback": "error",
+
+    // No parameter reassignment (encourages immutability)
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": ["draft"] // Allow for immer/zustand
+      }
+    ],
+
+    // Functional plugin rules (selective, React-compatible)
+    "functional/no-let": "off", // Too strict for React state
+    "functional/no-classes": "warn", // Prefer functions over classes
+    "functional/immutable-data": "off", // Too strict for React
+    "functional/no-expression-statements": "off", // Required for JSX
+    "functional/functional-parameters": "off", // Too strict for React
+    "functional/prefer-immutable-types": "off", // Too strict for practical use
+    "functional/no-return-void": "off", // Event handlers return void
+    
+    // ============================================
+    // IMPORT RULES
+    // ============================================
+
+    // Ensure imports exist
+    "import/no-unresolved": "error",
+
+    // No duplicate imports
+    "import/no-duplicates": "error",
+
+    // Disable default export check for React (React 19 uses new JSX transform)
+    "import/default": "off",
+    "import/no-named-as-default": "off",
+    "import/no-named-as-default-member": "off",
+    
+    // Consistent import order
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "type"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@/**",
+            "group": "internal"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    
+    // No default exports (prefer named exports for better refactoring)
+    "import/no-default-export": "warn",
+    
+    // ============================================
+    // CODE STYLE RULES
+    // ============================================
+    
+    // Enforce early returns
+    "no-else-return": "error",
+    
+    // Consistent naming conventions
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "UPPER_CASE", "PascalCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
+      },
+      {
+        "selector": "variable",
+        "modifiers": ["const"],
+        "types": ["boolean"],
+        "format": ["PascalCase"],
+        "prefix": ["is", "has", "can", "should", "will", "did"]
+      }
+    ],
+    
+    // Require curly braces for all control statements
+    "curly": ["error", "all"],
+    
+    // Disallow console.log in production (allow console.error/warn)
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    
+    // No nested ternaries (from .cursorrules)
+    "no-nested-ternary": "error",
+    
+    // Prefer template literals over string concatenation
+    "prefer-template": "error",
+    
+    // No magic numbers (extract to constants)
+    "no-magic-numbers": [
+      "warn",
+      {
+        "ignore": [0, 1, -1],
+        "ignoreArrayIndexes": true,
+        "ignoreDefaultValues": true,
+        "enforceConst": true
+      }
+    ],
+    
+    // ============================================
+    // ERROR PREVENTION
+    // ============================================
+    
+    // No async without await
+    "@typescript-eslint/require-await": "error",
+    
+    // Ensure promises are handled
+    "@typescript-eslint/no-floating-promises": "error",
+    
+    // No misused promises
+    "@typescript-eslint/no-misused-promises": "error",
+    
+    // Require error handling in promises
+    "prefer-promise-reject-errors": "error",
+    
+    // No throw of literal values
+    "@typescript-eslint/no-throw-literal": "error",
+    
+    // ============================================
+    // DISABLED RULES (allow flexibility where needed)
+    // ============================================
+    
+    // Allow empty interfaces (useful for extending)
+    "@typescript-eslint/no-empty-interface": "off",
+    
+    // Allow void expressions in arrow functions
+    "@typescript-eslint/no-confusing-void-expression": "off"
+  },
+  "overrides": [
+    // Allow default exports for Next.js pages, React components entry points
+    {
+      "files": ["*.page.tsx", "*.layout.tsx", "App.tsx", "main.tsx"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
+    // Relax rules for test files
+    {
+      "files": ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "max-lines-per-function": "off",
+        "max-lines": "off"
+      }
+    },
+    // Relax rules for config files
+    {
+      "files": ["*.config.*", "vite.config.*", "tailwind.config.*", "postcss.config.*"],
+      "parserOptions": {
+        "project": null
+      },
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off",
+        "import/no-default-export": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/no-floating-promises": "off",
+        "@typescript-eslint/no-misused-promises": "off"
+      }
+    },
+    {
+      "files": ["src/components/ui/**/*.tsx", "src/hooks/use-toast.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "prefer-arrow-callback": "off",
+        "max-lines": "off",
+        "max-lines-per-function": "off"
+      }
+    },
+    {
+      "files": ["src/components/pending/**/*.tsx"],
+      "rules": {
+        "max-lines": ["error", 300],
+        "max-lines-per-function": ["error", 200]
+      }
+    }
+  ]
+}

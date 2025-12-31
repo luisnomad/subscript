@@ -1,0 +1,565 @@
+# SubScript Project Rules
+
+## Core Principles
+- **Simplicity First**: Prefer simple, readable code over clever abstractions
+- **Type Safety**: Strict TypeScript everywhere, no `any` types
+- **Small & Focused**: Files should be <200 lines, functions <50 lines
+- **Functional Over Classes**: Use pure functions and composition
+- **Minimal Dependencies**: Keep hook dependency arrays minimal, avoid unnecessary re-renders
+
+---
+
+## Package Management
+
+### pnpm Usage
+- ✅ **ALWAYS use pnpm** as the package manager (NOT npm or yarn)
+- ✅ **Install dependencies**: `pnpm install`
+- ✅ **Add packages**: `pnpm add <package>` (production) or `pnpm add -D <package>` (dev)
+- ✅ **Remove packages**: `pnpm remove <package>`
+- ✅ **Run scripts**: `pnpm <script>` (e.g., `pnpm dev`, `pnpm build`)
+
+### Why pnpm?
+- **Fast**: Uses symlinks and hard links for efficient storage
+- **Disk efficient**: Shared dependency storage across projects
+- **Strict**: Better dependency isolation than npm/yarn
+- **Compatible**: Works with all npm packages
+
+---
+
+## TypeScript Rules
+
+### Strict Typing
+- ✅ **ALWAYS** use explicit types for function parameters and return values
+- ✅ **ALWAYS** define interfaces/types in `src/lib/types.ts`
+- ✅ **NEVER** use `any`, use `unknown` if truly dynamic
+- ✅ **NEVER** use type assertions (`as`) unless absolutely necessary
+- ✅ Use strict null checks (`value | null` vs `value?`)
+- ✅ Enable all strict TypeScript compiler options
+
+```typescript
+// ✅ GOOD
+interface User {
+  id: number;
+  name: string;
+  email: string | null;
+}
+
+function getUser(id: number): Promise<User> {
+  // implementation
+}
+
+// ❌ BAD
+function getUser(id: any): any {
+  // implementation
+}
+```
+
+### Type Organization
+- **Domain Types**: Define in `src/lib/types.ts` (Subscription, Domain, etc.)
+- **Component Props**: Define inline with component or in `ComponentName.types.ts` if complex
+- **API Responses**: Define in `src/lib/api-types.ts`
+- **Utility Types**: Use TypeScript built-ins (`Partial`, `Pick`, `Omit`)
+
+---
+
+## React Rules
+
+### Component Structure
+- ✅ **Prefer functional components** over class components
+- ✅ **Keep components under 150 lines** - extract if larger
+- ✅ **One component per file** (except tiny internal helpers)
+- ✅ **Colocate related files** in feature folders
+
+```
+components/
+├── pending/
+│   ├── PendingQueueView.tsx          (main view)
+│   ├── PendingImportCard/
+│   │   ├── index.tsx                 (main component)
+│   │   ├── ClassificationBadge.tsx   (sub-component)
+│   │   ├── SubscriptionFields.tsx    (sub-component)
+│   │   └── PendingImportCard.types.ts (if needed)
+│   └── BatchActionsBar.tsx
+```
+
+### Hooks Usage - MINIMIZE!
+- ✅ **Avoid custom hooks unless reused 3+ times**
+- ✅ **Keep dependency arrays minimal** - split effects if needed
+- ✅ **Prefer props/callbacks over context** for simple data flow
+- ✅ Use `useMemo`/`useCallback` only when profiled performance issue exists
+- ❌ **NEVER** create a hook for a single component's logic
+
+```typescript
+// ✅ GOOD - Simple component with minimal hooks
+function UserCard({ user }: { user: User }) {
+  return (
+    <Card>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </Card>
+  );
+}
+
+// ❌ BAD - Unnecessary hook
+function useUserCard(user: User) {
+  const [isHovered, setIsHovered] = useState(false);
+  // ... more state
+  return { isHovered, setIsHovered };
+}
+```
+
+### State Management
+- ✅ **Prefer local component state** (`useState`) for UI state
+- ✅ **Lift state only when needed** by multiple components
+- ✅ Use Tauri commands directly, no Redux/MobX needed for MVP
+- ✅ Create simple context only for truly global state (settings, auth)
+
+```typescript
+// ✅ GOOD - Local state
+function PendingCard({ item }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  // ...
+}
+
+// ❌ BAD - Unnecessary global state for UI state
+const PendingContext = createContext<PendingState>({});
+```
+
+### Component Composition
+- ✅ **Break into smaller components** at 100+ lines
+- ✅ **Extract repetitive JSX** into sub-components
+- ✅ **Use composition over props drilling** (children pattern)
+- ✅ **Avoid deeply nested ternaries** - extract to separate component or function
+
+```typescript
+// ✅ GOOD - Composition
+function Card({ children }: { children: React.ReactNode }) {
+  return <div className="card">{children}</div>;
+}
+
+function UserCard({ user }: Props) {
+  return (
+    <Card>
+      <UserHeader user={user} />
+      <UserBody user={user} />
+    </Card>
+  );
+}
+
+// ❌ BAD - Monolithic component
+function UserCard({ user }: Props) {
+  return (
+    <div className="card">
+      <div className="header">
+        <img src={user.avatar} />
+        <h2>{user.name}</h2>
+        <span>{user.role}</span>
+      </div>
+      <div className="body">
+        {/* 100 more lines */}
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## File Organization
+
+### Directory Structure - STRICT HIERARCHY
+```
+src/
+├── components/
+│   ├── layout/              # App shell, navigation
+│   │   ├── AppShell.tsx
+│   │   ├── Header.tsx
+│   │   └── Sidebar.tsx
+│   ├── pending/             # Pending queue feature
+│   │   ├── PendingQueueView.tsx
+│   │   ├── PendingImportCard/
+│   │   │   ├── index.tsx
+│   │   │   ├── ClassificationBadge.tsx
+│   │   │   └── SubscriptionFields.tsx
+│   │   └── BatchActionsBar.tsx
+│   ├── subscriptions/       # Subscriptions feature
+│   │   ├── SubscriptionList.tsx
+│   │   ├── SubscriptionCard.tsx
+│   │   └── AddSubscriptionDialog.tsx
+│   ├── domains/             # Domains feature
+│   ├── settings/            # Settings feature
+│   ├── shared/              # Truly shared components only
+│   │   ├── CurrencyDisplay.tsx
+│   │   ├── DateCountdown.tsx
+│   │   └── EmptyState.tsx
+│   └── ui/                  # Shadcn base components
+│       ├── button.tsx
+│       ├── card.tsx
+│       └── dialog.tsx
+├── hooks/                   # ONLY if reused 3+ times
+│   ├── usePendingImports.ts
+│   └── useSettings.ts
+├── lib/
+│   ├── types.ts             # All domain types
+│   ├── api-types.ts         # API response types
+│   ├── tauri.ts             # Tauri command wrappers
+│   ├── constants.ts         # App constants
+│   └── utils.ts             # Pure utility functions
+├── styles/
+│   └── globals.css
+└── App.tsx
+```
+
+### File Naming
+- ✅ **Components**: PascalCase (`UserCard.tsx`)
+- ✅ **Hooks**: camelCase with `use` prefix (`usePendingImports.ts`)
+- ✅ **Utils**: camelCase (`formatCurrency.ts`)
+- ✅ **Types**: PascalCase for interfaces, camelCase for files
+- ✅ **Index files**: Only for re-exporting complex components
+
+### File Size Limits
+- **Components**: Max 200 lines (including imports/exports)
+- **Hooks**: Max 100 lines
+- **Utility files**: Max 150 lines
+- **Type files**: No limit (but organize logically)
+
+**When to split**:
+- File > 200 lines → Extract sub-components or logic
+- Component has 3+ distinct sections → Split into sub-components
+- Function > 50 lines → Extract helper functions
+
+---
+
+## Code Style
+
+### Functions
+- ✅ **Prefer pure functions** - no side effects when possible
+- ✅ **Single Responsibility** - one function, one job
+- ✅ **Max 50 lines per function** - extract if longer
+- ✅ **Explicit return types** always
+- ✅ **Early returns** over nested if/else
+
+```typescript
+// ✅ GOOD - Pure function, early return
+function formatCurrency(
+  amount: number, 
+  currency: string
+): string {
+  if (amount === 0) return `${currency} 0.00`;
+  
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}
+
+// ❌ BAD - Nested logic, unclear return
+function formatCurrency(amount: number, currency: string) {
+  if (amount !== 0) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format(amount);
+  } else {
+    return `${currency} 0.00`;
+  }
+}
+```
+
+### Variables
+- ✅ **Use `const` by default**, `let` only when reassigned
+- ✅ **Descriptive names** - `pendingImports` not `data`
+- ✅ **Avoid abbreviations** - `subscription` not `sub`
+- ✅ **Boolean prefix** - `isLoading`, `hasError`, `canEdit`
+
+### Conditionals
+- ✅ **Extract complex conditions** to named variables
+- ✅ **Use guard clauses** over nested if/else
+- ✅ **Prefer `??` for null coalescing** over `||`
+
+```typescript
+// ✅ GOOD - Named condition
+const canApprove = item.status === 'pending' && item.confidence > 0.8;
+if (canApprove) {
+  handleApprove(item);
+}
+
+// ❌ BAD - Inline complex condition
+if (item.status === 'pending' && item.confidence > 0.8) {
+  handleApprove(item);
+}
+```
+
+---
+
+## Tauri Integration
+
+### Command Calls
+- ✅ **Wrap all Tauri commands** in `src/lib/tauri.ts`
+- ✅ **Type the responses** using interfaces from `types.ts`
+- ✅ **Handle errors explicitly** - no silent failures
+- ✅ **Use async/await** over `.then()` chains
+
+```typescript
+// src/lib/tauri.ts
+import { invoke } from '@tauri-apps/api/tauri';
+import type { PendingImport, Subscription } from './types';
+
+export async function getPendingImports(
+  testMode: boolean
+): Promise<PendingImport[]> {
+  try {
+    return await invoke<PendingImport[]>('get_pending_imports', { 
+      testMode 
+    });
+  } catch (error) {
+    console.error('Failed to fetch pending imports:', error);
+    throw error;
+  }
+}
+
+export async function approveImport(
+  importId: number,
+  editedData: string | null,
+  testMode: boolean
+): Promise<void> {
+  await invoke('approve_import', { 
+    importId, 
+    editedData, 
+    testMode 
+  });
+}
+```
+
+### Component Usage
+```typescript
+// ✅ GOOD - Use wrapper, handle errors
+import { getPendingImports } from '@/lib/tauri';
+
+function PendingQueue() {
+  const [imports, setImports] = useState<PendingImport[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getPendingImports(false)
+      .then(setImports)
+      .catch(err => setError(err.message));
+  }, []);
+
+  if (error) return <ErrorState message={error} />;
+  return <ImportList imports={imports} />;
+}
+
+// ❌ BAD - Invoke directly in component
+import { invoke } from '@tauri-apps/api/tauri';
+
+function PendingQueue() {
+  const [imports, setImports] = useState([]);
+  
+  useEffect(() => {
+    invoke('get_pending_imports', { testMode: false })
+      .then((data: any) => setImports(data));
+  }, []);
+}
+```
+
+---
+
+## Styling Rules
+
+### Tailwind Usage
+- ✅ **Use Tailwind classes** for 95% of styling
+- ✅ **Extract repeated classes** to components, not @apply
+- ✅ **Group classes logically**: layout → sizing → spacing → colors → effects
+- ✅ **Use semantic color tokens** from theme, not hardcoded hex
+
+```typescript
+// ✅ GOOD - Organized classes
+<div className="flex items-center justify-between w-full px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+
+// ❌ BAD - Random order, repeated
+<div className="shadow-sm bg-white px-4 flex rounded-lg py-2 w-full items-center hover:shadow-md justify-between transition-shadow">
+```
+
+### Component Styling
+- ✅ **Keep styles close to JSX** - inline className strings
+- ✅ **Use `cn()` helper** for conditional classes (from shadcn)
+- ❌ **Avoid CSS modules** - Tailwind is sufficient
+- ❌ **Avoid styled-components** - not needed with Tailwind
+
+```typescript
+import { cn } from '@/lib/utils';
+
+function Card({ variant }: { variant: 'default' | 'error' }) {
+  return (
+    <div className={cn(
+      "rounded-lg p-4 border",
+      variant === 'default' && "bg-white border-gray-200",
+      variant === 'error' && "bg-red-50 border-red-200"
+    )}>
+      {/* content */}
+    </div>
+  );
+}
+```
+
+---
+
+## Error Handling
+
+### General Rules
+- ✅ **Always catch errors** from async operations
+- ✅ **Show user-friendly messages** - no raw error objects in UI
+- ✅ **Log errors to console** for debugging
+- ✅ **Create Error Boundary** for component crashes
+
+```typescript
+// ✅ GOOD - Graceful error handling
+async function handleApprove(id: number) {
+  try {
+    await approveImport(id, null, false);
+    toast.success('Import approved');
+  } catch (error) {
+    console.error('Approval failed:', error);
+    toast.error('Failed to approve import. Please try again.');
+  }
+}
+
+// ❌ BAD - No error handling
+async function handleApprove(id: number) {
+  await approveImport(id, null, false);
+  toast.success('Import approved');
+}
+```
+
+### User Feedback
+- ✅ **Loading states** for async operations
+- ✅ **Success/error toasts** for mutations
+- ✅ **Empty states** for zero data
+- ✅ **Skeleton screens** for loading data
+
+---
+
+## Performance
+
+### Optimization Rules
+- ✅ **Profile before optimizing** - don't guess
+- ✅ **Lazy load routes** if app grows beyond MVP
+- ✅ **Virtualize long lists** (100+ items) with react-window
+- ❌ **Don't use `useMemo`/`useCallback`** without profiling first
+- ❌ **Don't optimize prematurely** - code clarity > speed for MVP
+
+### When to Optimize
+- List with 100+ items → Virtualize
+- Heavy computation (>10ms) → Move to Web Worker or Rust
+- Large images → Lazy load + optimize size
+- Frequent re-renders → Check dependency arrays
+
+---
+
+## Testing Strategy
+
+### What to Test
+- ✅ **Critical user flows** - approve/reject, manual entry
+- ✅ **Utility functions** - pure functions with unit tests
+- ✅ **Tauri commands** - integration tests
+- ❌ **Don't test** - UI component snapshots, trivial functions
+
+### Test Organization
+```
+src/
+├── __tests__/
+│   ├── lib/
+│   │   ├── utils.test.ts
+│   │   └── tauri.test.ts
+│   └── components/
+│       └── PendingImportCard.test.tsx
+```
+
+---
+
+## Comments & Documentation
+
+### When to Comment
+- ✅ **Complex business logic** - explain WHY, not WHAT
+- ✅ **Non-obvious workarounds** - link to issue/docs
+- ✅ **Public API functions** - JSDoc with examples
+- ❌ **Don't comment** - self-explanatory code, obvious logic
+
+```typescript
+// ✅ GOOD - Explains non-obvious logic
+// We convert to EUR on display because users requested a single currency view.
+// Original currency is preserved in the database for receipt accuracy.
+const displayAmount = convertCurrency(item.amount, item.currency, 'EUR');
+
+// ❌ BAD - States the obvious
+// Get the user's name
+const name = user.name;
+```
+
+### JSDoc for APIs
+```typescript
+/**
+ * Approves a pending import and moves it to subscriptions/domains table.
+ * 
+ * @param importId - The ID of the pending import
+ * @param editedData - Optional JSON string with user edits
+ * @param testMode - Whether to use test database
+ * @throws {Error} If import not found or database error
+ * 
+ * @example
+ * await approveImport(123, null, false);
+ */
+export async function approveImport(
+  importId: number,
+  editedData: string | null,
+  testMode: boolean
+): Promise<void> {
+  // implementation
+}
+```
+
+---
+
+## Git Workflow
+
+### Commit Messages
+- ✅ **Use conventional commits**: `feat:`, `fix:`, `refactor:`, `docs:`
+- ✅ **Be descriptive**: "feat: add batch approve for pending imports"
+- ❌ **Avoid vague**: "fix stuff", "update code"
+
+### Branch Strategy (if using Git)
+- `main` - Production-ready code
+- `dev` - Active development
+- `feat/feature-name` - New features
+- `fix/bug-name` - Bug fixes
+
+---
+
+## Summary - Quick Reference
+
+### DO ✅
+- Write explicit types everywhere
+- Keep files under 200 lines
+- Prefer pure functions over classes
+- Extract components at 100+ lines
+- Minimize hooks and dependencies
+- Use early returns
+- Handle all errors gracefully
+- Organize files by feature
+- Test critical paths
+
+### DON'T ❌
+- Use `any` type
+- Create hooks for single-use logic
+- Over-optimize prematurely
+- Use classes unless necessary
+- Nest ternaries 3+ levels deep
+- Create global state for local UI
+- Ignore TypeScript errors
+- Put everything in `shared/`
+- Write 500-line files
+
+---
+
+**Philosophy**: Simple, typed, maintainable code that a junior developer can understand and a senior developer can appreciate.
