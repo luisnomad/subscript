@@ -7,26 +7,14 @@ import {
   updateSubscription,
   deleteSubscription,
   getDomains,
-  getDomainById,
-  createDomain,
-  updateDomain,
-  deleteDomain,
   getPendingImports,
-  createPendingImport,
   approvePendingImport,
   rejectPendingImport,
   batchApprovePendingImports,
   batchRejectPendingImports,
   getSettings,
-  updateSettings,
-  getOllamaModels,
-  testImapConnection,
-  getReceiptById,
-  deleteOldReceipts,
   triggerEmailSync,
-  getLastSyncTime,
   clearTestDatabase,
-  exportDatabase
 } from './tauri';
 
 // Mock @tauri-apps/api/core
@@ -53,14 +41,14 @@ describe('tauri command wrappers', () => {
 
   it('createSubscription calls correct command', async () => {
     vi.mocked(tauriCore.invoke).mockResolvedValue(1);
-    const sub = { name: 'Test', cost: 10, currency: 'USD', billingCycle: 'monthly' as const, status: 'active' as const, category: null, notes: null };
+    const sub = { name: 'Test', cost: 10, currency: 'USD', billingCycle: 'monthly' as const, nextBillingDate: null, status: 'active' as const, category: null, notes: null };
     await createSubscription(sub, true);
     expect(tauriCore.invoke).toHaveBeenCalledWith('create_subscription', { subscription: sub, testMode: true });
   });
 
   it('updateSubscription calls correct command', async () => {
     vi.mocked(tauriCore.invoke).mockResolvedValue(undefined);
-    const sub = { id: 1, name: 'Test', cost: 10, currency: 'USD', billingCycle: 'monthly' as const, status: 'active' as const, category: null, notes: null, createdAt: '', updatedAt: '' };
+    const sub = { id: 1, name: 'Test', cost: 10, currency: 'USD', billingCycle: 'monthly' as const, nextBillingDate: null, status: 'active' as const, category: null, notes: null, createdAt: '', updatedAt: '' };
     await updateSubscription(sub, true);
     expect(tauriCore.invoke).toHaveBeenCalledWith('update_subscription', { subscription: sub, testMode: true });
   });

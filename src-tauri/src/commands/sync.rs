@@ -2,10 +2,11 @@
 
 use crate::db::{get_db_connection, DatabaseType};
 use crate::utils::{get_current_timestamp, AppResult};
+use crate::services::sync::SyncService;
 use rusqlite::OptionalExtension;
 
 #[tauri::command]
-pub fn trigger_email_sync(test_mode: bool) -> AppResult<String> {
+pub async fn trigger_email_sync(test_mode: bool) -> AppResult<String> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
@@ -19,12 +20,29 @@ pub fn trigger_email_sync(test_mode: bool) -> AppResult<String> {
     // Create sync log entry
     conn.execute(
         "INSERT INTO sync_log (sync_started_at, status, created_at) VALUES (?1, 'running', ?2)",
-        rusqlite::params![now.clone(), now],
+        rusqlite::params![now.clone(), now.clone()],
     )?;
+    let log_id = conn.last_insert_rowid();
 
-    // Placeholder for actual email sync logic
-    // This will be implemented in Phase 3
-    Ok("Email sync triggered (placeholder - not yet implemented)".to_string())
+    // Run sync
+    match SyncService::run_sync(test_mode).await {
+        Ok(_) => {
+            let completed_at = get_current_timestamp();
+            conn.execute(
+                "UPDATE sync_log SET sync_completed_at = ?1, status = 'completed' WHERE id = ?2",
+                rusqlite::params![completed_at, log_id],
+            )?;
+            Ok("Email sync completed successfully".to_string())
+        }
+        Err(e) => {
+            let error_msg = e.to_string();
+            conn.execute(
+                "UPDATE sync_log SET status = 'failed', error_message = ?1 WHERE id = ?2",
+                rusqlite::params![error_msg, log_id],
+            )?;
+            Err(e)
+        }
+    }
 }
 
 #[tauri::command]

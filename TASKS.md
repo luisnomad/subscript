@@ -25,6 +25,36 @@
 
 ---
 
+## 📧 Phase 6: Email Processing Pipeline
+
+**Purpose**: Automate the ingestion of receipts from email using IMAP, MarkItDown, and Ollama.
+
+### IMAP Service Enhancements
+- [x] Implement `fetch_unread_emails` in `imap.rs`
+- [x] Implement email parsing using `mailparse`
+- [x] Extract attachments (PDF, images) and email body
+- [x] Handle [test] subject prefix for routing to test database
+
+### MarkItDown Integration
+- [x] Implement `ensure_markitdown` to check/install the tool
+- [x] Enhance `convert_to_markdown` to handle different file types
+- [x] Add support for converting email body (HTML/Text) to markdown
+
+### Ollama LLM Extraction
+- [x] Define structured prompt for receipt analysis
+- [x] Implement JSON response parsing in `ollama.rs`
+- [x] Handle different extraction types (subscription, domain, junk)
+- [x] Implement confidence score extraction
+
+### Sync Orchestration
+- [x] Create `SyncService` to coordinate the pipeline
+- [x] Implement background sync task (30-minute interval)
+- [x] Save extracted data to `pending_imports` table
+- [x] Archive original receipts in `receipts` table
+- [x] Implement manual sync trigger command
+
+---
+
 ## 🧪 Phase 7: Testing
 
 ### Unit Tests
@@ -88,8 +118,8 @@
 
 ### User Documentation
 - [ ] Create user guide (docs/user-guide.md)
+  - [x] Initial setup (IMAP, Ollama) - See [docs/SETTING_UP_EMAIL.md](docs/SETTING_UP_EMAIL.md)
   - [ ] Installation instructions
-  - [ ] Initial setup (IMAP, Ollama)
   - [ ] How to review pending imports
   - [ ] How to manually add subscriptions/domains
   - [ ] How to edit/delete entries
@@ -222,7 +252,7 @@
 | Phase 4: Manual Entry & Testing | ✅ Complete | 100% |
 | Phase 4.5: Code Review & Bug Fixes | ✅ Complete | 100% |
 | Phase 5: Subscription/Domain UI | 🚧 In Progress | 90% |
-| Phase 6: Email Processing | 🚧 In Progress | 20% |
+| Phase 6: Email Processing | ✅ Complete | 100% |
 | Phase 7: Testing | ✅ Complete | 100% |
 | Phase 8: Documentation | 🚧 Not Started | 0% |
 | Phase 9: UI/UX Enhancements | 🚧 Not Started | 0% |

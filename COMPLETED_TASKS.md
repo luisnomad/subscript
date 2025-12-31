@@ -275,9 +275,26 @@ For current and upcoming tasks, see [TASKS.md](TASKS.md).
 
 ---
 
-## ✅ Phase 6: Email Processing Pipeline (Partial)
+## ✅ Phase 6: Email Processing Pipeline
 
 - [x] Add IMAP dependencies to Cargo.toml
-- [x] Implement IMAP service module (Basic structure & connection)
-- [x] Implement Python subprocess wrapper (Rust) (Basic structure)
-- [x] Implement Ollama API client (Rust) (Basic structure & HTTP client)
+- [x] Implement IMAP service module
+  - [x] Connection and authentication
+  - [x] Fetch unread emails
+  - [x] Email parsing with `mailparse`
+  - [x] Attachment extraction (PDF, images)
+- [x] Implement Python subprocess wrapper (Rust)
+  - [x] `MarkItDownService` for document conversion
+  - [x] `ensure_markitdown` for auto-installation
+  - [x] Support for raw data conversion via temp files
+- [x] Implement Ollama API client (Rust)
+  - [x] Structured prompt for receipt analysis
+  - [x] JSON response parsing and validation
+  - [x] Model listing and connection testing
+- [x] Implement `SyncService` orchestration
+  - [x] End-to-end pipeline (Email -> MarkItDown -> Ollama -> DB)
+  - [x] Receipt archiving
+  - [x] Routing to production/test databases based on subject
+- [x] Implement background sync task in Tauri lifecycle
+- [x] Implement manual sync trigger command
+- [x] Implement secure password storage via `keyring` crate

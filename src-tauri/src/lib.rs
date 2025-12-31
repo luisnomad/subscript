@@ -32,6 +32,20 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            let _handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    // Run sync every 30 minutes
+                    // Note: In a real app, we might want to check settings for the interval
+                    if let Err(e) = services::sync::SyncService::run_sync(false).await {
+                        eprintln!("Background sync error: {}", e);
+                    }
+                    tokio::time::sleep(std::time::Duration::from_secs(30 * 60)).await;
+                }
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // Subscription commands
             commands::subscriptions::get_subscriptions,
@@ -57,6 +71,8 @@ pub fn run() {
             commands::settings::update_settings,
             commands::settings::get_ollama_models,
             commands::settings::test_imap_connection,
+            commands::settings::save_imap_password,
+            commands::settings::get_imap_password,
             // Receipt commands
             commands::receipts::get_receipt_by_id,
             commands::receipts::delete_old_receipts,

@@ -208,6 +208,14 @@ export async function updateSettings(
   return invoke('update_settings', { settings, testMode });
 }
 
+export async function saveImapPassword(password: string): Promise<void> {
+  return invoke('save_imap_password', { password });
+}
+
+export async function getImapPassword(): Promise<string> {
+  return invoke<string>('get_imap_password');
+}
+
 export interface ImapConnectionConfig {
   server: string;
   port: number;

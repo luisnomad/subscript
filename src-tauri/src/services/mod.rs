@@ -4,4 +4,5 @@
 pub mod imap;
 pub mod ollama;
 pub mod markitdown;
+pub mod sync;
 

@@ -4,10 +4,28 @@ use crate::db::{get_db_connection, DatabaseType};
 use crate::models::AppSettings;
 use crate::services::ollama::OllamaService;
 use crate::utils::{get_current_timestamp, AppResult};
+use keyring::Entry;
 
 #[tauri::command]
 pub async fn get_ollama_models(endpoint: String) -> AppResult<Vec<String>> {
     OllamaService::list_models(&endpoint).await
+}
+
+#[tauri::command]
+pub fn save_imap_password(password: String) -> AppResult<()> {
+    let entry = Entry::new("subscript", "imap_password")
+        .map_err(|e| crate::utils::AppError::Internal(format!("Keyring error: {}", e)))?;
+    entry.set_password(&password)
+        .map_err(|e| crate::utils::AppError::Internal(format!("Failed to save password: {}", e)))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_imap_password() -> AppResult<String> {
+    let entry = Entry::new("subscript", "imap_password")
+        .map_err(|e| crate::utils::AppError::Internal(format!("Keyring error: {}", e)))?;
+    entry.get_password()
+        .map_err(|e| crate::utils::AppError::Internal(format!("Failed to get password: {}", e)))
 }
 
 #[tauri::command]
