@@ -22,6 +22,8 @@ interface EmailMetadataFieldsProps {
   onConfidenceChange: (value: number) => void;
 }
 
+const CONFIDENCE_DECIMAL_PLACES = 2;
+
 export function EmailMetadataFields({
   emailSubject,
   emailFrom,
@@ -33,7 +35,7 @@ export function EmailMetadataFields({
   onEmailDateChange,
   onClassificationChange,
   onConfidenceChange,
-}: EmailMetadataFieldsProps) {
+}: EmailMetadataFieldsProps): JSX.Element {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Email Metadata</h3>
@@ -90,7 +92,7 @@ export function EmailMetadataFields({
 
       <div className="space-y-2">
         <Label htmlFor="confidence">
-          Confidence Score: {confidence.toFixed(2)}
+          Confidence Score: {confidence.toFixed(CONFIDENCE_DECIMAL_PLACES)}
         </Label>
         <input
           id="confidence"

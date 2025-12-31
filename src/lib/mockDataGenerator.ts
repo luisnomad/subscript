@@ -3,149 +3,38 @@
  * Generates realistic subscription and domain data for testing the pending import workflow
  */
 
+import { MOCK_DOMAINS, MOCK_SUBSCRIPTIONS } from "./mockData";
+
 import type {
-  BillingCycle,
   DomainExtraction,
   SubscriptionExtraction,
 } from "./types";
 
-// Mock subscription services with realistic data
-const MOCK_SUBSCRIPTIONS = [
-  {
-    name: "Netflix Premium",
-    cost: 19.99,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Entertainment",
-    from: "billing@netflix.com",
-    subject: "Your Netflix subscription receipt",
-  },
-  {
-    name: "Spotify Premium",
-    cost: 9.99,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Music",
-    from: "noreply@spotify.com",
-    subject: "Spotify Premium - Payment Confirmation",
-  },
-  {
-    name: "Adobe Creative Cloud",
-    cost: 54.99,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Software",
-    from: "adobe@adobe.com",
-    subject: "Adobe Creative Cloud Receipt",
-  },
-  {
-    name: "GitHub Pro",
-    cost: 4.0,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Development",
-    from: "billing@github.com",
-    subject: "GitHub Pro subscription renewed",
-  },
-  {
-    name: "Figma Professional",
-    cost: 12.0,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Design",
-    from: "team@figma.com",
-    subject: "Figma Professional Plan Receipt",
-  },
-  {
-    name: "The New York Times",
-    cost: 17.0,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "News",
-    from: "nytimes@nytimes.com",
-    subject: "Your NYT Digital Subscription",
-  },
-  {
-    name: "Notion Plus",
-    cost: 8.0,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Productivity",
-    from: "team@notion.so",
-    subject: "Notion Plus Payment Received",
-  },
-  {
-    name: "Dropbox Plus",
-    cost: 11.99,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Storage",
-    from: "no-reply@dropbox.com",
-    subject: "Dropbox Plus - Monthly Receipt",
-  },
-  {
-    name: "ChatGPT Plus",
-    cost: 20.0,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "AI",
-    from: "noreply@openai.com",
-    subject: "ChatGPT Plus subscription confirmation",
-  },
-  {
-    name: "AWS Services",
-    cost: 45.32,
-    currency: "USD",
-    billingCycle: "monthly" as BillingCycle,
-    category: "Cloud",
-    from: "aws-billing@amazon.com",
-    subject: "AWS Monthly Bill",
-  },
-];
+const DAYS_IN_MONTH = 30;
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_HOUR = 60;
+const SECONDS_IN_MINUTE = 60;
+const MS_IN_SECOND = 1000;
+const MS_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MS_IN_SECOND;
 
-// Mock domain registrations
-const MOCK_DOMAINS = [
-  {
-    domainName: "myawesomeapp.com",
-    registrar: "Namecheap",
-    cost: 12.98,
-    currency: "USD",
-    from: "domains@namecheap.com",
-    subject: "Domain Registration Confirmation - myawesomeapp.com",
-  },
-  {
-    domainName: "startupidea.io",
-    registrar: "GoDaddy",
-    cost: 29.99,
-    currency: "USD",
-    from: "noreply@godaddy.com",
-    subject: "GoDaddy Domain Registration Receipt",
-  },
-  {
-    domainName: "portfolio-site.dev",
-    registrar: "Google Domains",
-    cost: 12.0,
-    currency: "USD",
-    from: "domains-noreply@google.com",
-    subject: "Google Domains: Registration Confirmation",
-  },
-  {
-    domainName: "coolproject.xyz",
-    registrar: "Cloudflare",
-    cost: 9.15,
-    currency: "USD",
-    from: "noreply@cloudflare.com",
-    subject: "Cloudflare Registrar - Domain Registered",
-  },
-  {
-    domainName: "business-site.co",
-    registrar: "Hover",
-    cost: 17.99,
-    currency: "USD",
-    from: "support@hover.com",
-    subject: "Hover Domain Registration",
-  },
-];
+const FUTURE_DATE_MIN_DAYS = 30;
+const FUTURE_DATE_RANGE_DAYS = 60;
+
+const DOMAIN_EXPIRY_MIN_DAYS = 300;
+const DOMAIN_EXPIRY_RANGE_DAYS = 100;
+
+const CONFIDENCE_HIGH_THRESHOLD = 0.6;
+const CONFIDENCE_HIGH_MIN = 0.8;
+const CONFIDENCE_HIGH_RANGE = 0.2;
+
+const CONFIDENCE_MEDIUM_THRESHOLD = 0.9;
+const CONFIDENCE_MEDIUM_MIN = 0.5;
+const CONFIDENCE_MEDIUM_RANGE = 0.3;
+
+const CONFIDENCE_LOW_MIN = 0.3;
+const CONFIDENCE_LOW_RANGE = 0.2;
+
+const AUTO_RENEW_THRESHOLD = 0.3;
 
 /**
  * Get a random item from an array
@@ -164,8 +53,8 @@ function getRandomItem<T>(array: readonly T[]): T {
  */
 function getRandomRecentDate(): string {
   const now = new Date();
-  const daysAgo = Math.floor(Math.random() * 30);
-  const date = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+  const daysAgo = Math.floor(Math.random() * DAYS_IN_MONTH);
+  const date = new Date(now.getTime() - daysAgo * MS_IN_DAY);
   const dateStr = date.toISOString().split("T")[0];
   return dateStr ?? "";
 }
@@ -175,8 +64,8 @@ function getRandomRecentDate(): string {
  */
 function getRandomFutureDate(): string {
   const now = new Date();
-  const daysFromNow = 30 + Math.floor(Math.random() * 60);
-  const date = new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
+  const daysFromNow = FUTURE_DATE_MIN_DAYS + Math.floor(Math.random() * FUTURE_DATE_RANGE_DAYS);
+  const date = new Date(now.getTime() + daysFromNow * MS_IN_DAY);
   const dateStr = date.toISOString().split("T")[0];
   return dateStr ?? "";
 }
@@ -186,8 +75,8 @@ function getRandomFutureDate(): string {
  */
 function getRandomDomainExpiryDate(): string {
   const now = new Date();
-  const daysFromNow = 300 + Math.floor(Math.random() * 100);
-  const date = new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
+  const daysFromNow = DOMAIN_EXPIRY_MIN_DAYS + Math.floor(Math.random() * DOMAIN_EXPIRY_RANGE_DAYS);
+  const date = new Date(now.getTime() + daysFromNow * MS_IN_DAY);
   const dateStr = date.toISOString().split("T")[0];
   return dateStr ?? "";
 }
@@ -197,13 +86,13 @@ function getRandomDomainExpiryDate(): string {
  */
 function getRandomConfidence(): number {
   const rand = Math.random();
-  if (rand < 0.6) {
-    return 0.8 + Math.random() * 0.2; // 60% chance: 0.8-1.0
+  if (rand < CONFIDENCE_HIGH_THRESHOLD) {
+    return CONFIDENCE_HIGH_MIN + Math.random() * CONFIDENCE_HIGH_RANGE;
   }
-  if (rand < 0.9) {
-    return 0.5 + Math.random() * 0.3; // 30% chance: 0.5-0.8
+  if (rand < CONFIDENCE_MEDIUM_THRESHOLD) {
+    return CONFIDENCE_MEDIUM_MIN + Math.random() * CONFIDENCE_MEDIUM_RANGE;
   }
-  return 0.3 + Math.random() * 0.2; // 10% chance: 0.3-0.5
+  return CONFIDENCE_LOW_MIN + Math.random() * CONFIDENCE_LOW_RANGE;
 }
 
 /**
@@ -258,14 +147,16 @@ export function generateMockDomain(): {
       currency: mockDomain.currency,
       registrationDate,
       expiryDate: getRandomDomainExpiryDate(),
-      autoRenew: Math.random() > 0.3, // 70% chance of auto-renew
+      autoRenew: Math.random() > AUTO_RENEW_THRESHOLD,
     },
     confidence: getRandomConfidence(),
   };
 }
 
+const SUBSCRIPTION_PROBABILITY_THRESHOLD = 0.4;
+
 /**
- * Generate a random mock pending import (subscription or domain)
+ * Generates a single mock pending import
  */
 export function generateMockPendingImport(): {
   emailSubject: string;
@@ -275,7 +166,7 @@ export function generateMockPendingImport(): {
   extractedData: string;
   confidence: number;
 } {
-  const isSubscription = Math.random() > 0.4; // 60% subscriptions, 40% domains
+  const isSubscription = Math.random() > SUBSCRIPTION_PROBABILITY_THRESHOLD; // 60% subscriptions, 40% domains
 
   if (isSubscription) {
     const mock = generateMockSubscription();

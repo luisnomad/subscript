@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
+import { DomainsView } from "@/components/domains/DomainsView";
 import { PendingQueueView } from "@/components/pending/PendingQueueView";
 import { SubscriptionsView } from "@/components/subscriptions/SubscriptionsView";
-import { DomainsView } from "@/components/domains/DomainsView";
-import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
 
 type View = "pending" | "subscriptions" | "domains";
 

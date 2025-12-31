@@ -1,8 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { PendingQueueView } from "./PendingQueueView";
+
 import * as tauri from "@/lib/tauri";
 import type { PendingImport } from "@/lib/types";
+
+import { PendingQueueView } from "./PendingQueueView";
 
 // Mock the tauri module
 vi.mock("@/lib/tauri", () => ({

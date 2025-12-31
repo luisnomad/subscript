@@ -29,12 +29,15 @@ interface GenerateMockDataButtonProps {
   testMode?: boolean;
 }
 
-const MOCK_COUNTS = [1, 3, 5, 10];
+const COUNT_THREE = 3;
+const COUNT_FIVE = 5;
+const COUNT_TEN = 10;
+const MOCK_COUNTS = [1, COUNT_THREE, COUNT_FIVE, COUNT_TEN];
 
 export function GenerateMockDataButton({
   onSuccess,
   testMode = false,
-}: GenerateMockDataButtonProps) {
+}: GenerateMockDataButtonProps): JSX.Element {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

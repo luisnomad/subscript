@@ -7,8 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BILLING_CYCLES, CURRENCIES } from "@/lib/constants";
+import { BILLING_CYCLES } from "@/lib/constants";
 import type { BillingCycle } from "@/lib/types";
+
+import { CostCurrencyFields } from "./FormSubComponents";
 
 interface SubscriptionFormFieldsProps {
   name: string;
@@ -38,7 +40,7 @@ export function SubscriptionFormFields({
   onBillingCycleChange,
   onNextDateChange,
   onCategoryChange,
-}: SubscriptionFormFieldsProps) {
+}: SubscriptionFormFieldsProps): JSX.Element {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Subscription Data</h3>
@@ -54,53 +56,43 @@ export function SubscriptionFormFields({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="sub-cost">Cost *</Label>
-          <Input
-            id="sub-cost"
-            type="number"
-            step="0.01"
-            value={cost}
-            onChange={(e) => onCostChange(e.target.value)}
-            placeholder="15.99"
-            required
-          />
-        </div>
+      <CostCurrencyFields
+        cost={cost}
+        currency={currency}
+        onCostChange={onCostChange}
+        onCurrencyChange={onCurrencyChange}
+      />
 
-        <div className="space-y-2">
-          <Label htmlFor="sub-currency">Currency</Label>
-          <Select value={currency} onValueChange={onCurrencyChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CURRENCIES.map((curr) => (
-                <SelectItem key={curr} value={curr}>
-                  {curr}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <BillingCycleField
+        billingCycle={billingCycle}
+        onBillingCycleChange={onBillingCycleChange}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="billing-cycle">Billing Cycle</Label>
-        <Select value={billingCycle} onValueChange={onBillingCycleChange}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {BILLING_CYCLES.map((cycle) => (
-              <SelectItem key={cycle} value={cycle}>
-                {cycle.charAt(0).toUpperCase() + cycle.slice(1)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <DateAndCategoryFields
+        nextDate={nextDate}
+        category={category}
+        onNextDateChange={onNextDateChange}
+        onCategoryChange={onCategoryChange}
+      />
+    </div>
+  );
+}
 
+interface DateAndCategoryFieldsProps {
+  nextDate: string;
+  category: string;
+  onNextDateChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+}
+
+function DateAndCategoryFields({
+  nextDate,
+  category,
+  onNextDateChange,
+  onCategoryChange,
+}: DateAndCategoryFieldsProps): JSX.Element {
+  return (
+    <>
       <div className="space-y-2">
         <Label htmlFor="next-date">Next Billing Date</Label>
         <Input
@@ -120,6 +112,34 @@ export function SubscriptionFormFields({
           placeholder="Entertainment"
         />
       </div>
+    </>
+  );
+}
+
+interface BillingCycleFieldProps {
+  billingCycle: BillingCycle;
+  onBillingCycleChange: (value: BillingCycle) => void;
+}
+
+function BillingCycleField({
+  billingCycle,
+  onBillingCycleChange,
+}: BillingCycleFieldProps): JSX.Element {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="billing-cycle">Billing Cycle</Label>
+      <Select value={billingCycle} onValueChange={onBillingCycleChange}>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {BILLING_CYCLES.map((cycle) => (
+            <SelectItem key={cycle} value={cycle}>
+              {cycle.charAt(0).toUpperCase() + cycle.slice(1)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

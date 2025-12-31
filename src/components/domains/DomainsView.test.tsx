@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DomainsView } from "./DomainsView";
+
 import * as tauri from "@/lib/tauri";
+
+import { DomainsView } from "./DomainsView";
 
 // Mock the tauri module
 vi.mock("@/lib/tauri", () => ({

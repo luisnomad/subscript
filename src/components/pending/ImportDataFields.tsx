@@ -9,6 +9,8 @@ import {
 
 import type { SubscriptionExtraction, DomainExtraction } from "@/lib/types";
 
+const COST_DECIMAL_PLACES = 2;
+
 interface SubscriptionFieldsProps {
   data: SubscriptionExtraction;
 }
@@ -25,7 +27,7 @@ export function SubscriptionFields({
         <div className="flex items-baseline gap-1">
           <DollarSign className="h-4 w-4 text-[#d4a574]" />
           <p className="font-mono text-xl font-bold text-[#2a2a2a]">
-            {data.cost.toFixed(2)}
+            {data.cost.toFixed(COST_DECIMAL_PLACES)}
           </p>
           <p className="font-mono text-sm text-[#6b6b6b]">{data.currency}</p>
         </div>
@@ -73,7 +75,7 @@ export function DomainFields({
         <div className="flex items-baseline gap-1">
           <DollarSign className="h-4 w-4 text-[#2d5f4f]" />
           <p className="font-mono text-xl font-bold text-[#2a2a2a]">
-            {data.cost.toFixed(2)}
+            {data.cost.toFixed(COST_DECIMAL_PLACES)}
           </p>
           <p className="font-mono text-sm text-[#6b6b6b]">{data.currency}</p>
         </div>

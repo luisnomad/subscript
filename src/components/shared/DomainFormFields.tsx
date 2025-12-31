@@ -1,13 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CURRENCIES } from "@/lib/constants";
+  AutoRenewField,
+  CostCurrencyFields,
+  DateFields,
+} from "./FormSubComponents";
 
 interface DomainFormFieldsProps {
   domainName: string;
@@ -41,11 +39,55 @@ export function DomainFormFields({
   onExpiryDateChange,
   onRegistrationDateChange,
   onAutoRenewChange,
-}: DomainFormFieldsProps) {
+}: DomainFormFieldsProps): JSX.Element {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Domain Data</h3>
 
+      <BasicInfoFields
+        domainName={domainName}
+        registrar={registrar}
+        onDomainNameChange={onDomainNameChange}
+        onRegistrarChange={onRegistrarChange}
+      />
+
+      <CostCurrencyFields
+        cost={cost}
+        currency={currency}
+        onCostChange={onCostChange}
+        onCurrencyChange={onCurrencyChange}
+      />
+
+      <DateFields
+        expiryDate={expiryDate}
+        registrationDate={registrationDate}
+        onExpiryDateChange={onExpiryDateChange}
+        onRegistrationDateChange={onRegistrationDateChange}
+      />
+
+      <AutoRenewField
+        autoRenew={autoRenew}
+        onAutoRenewChange={onAutoRenewChange}
+      />
+    </div>
+  );
+}
+
+interface BasicInfoFieldsProps {
+  domainName: string;
+  registrar: string;
+  onDomainNameChange: (value: string) => void;
+  onRegistrarChange: (value: string) => void;
+}
+
+function BasicInfoFields({
+  domainName,
+  registrar,
+  onDomainNameChange,
+  onRegistrarChange,
+}: BasicInfoFieldsProps): JSX.Element {
+  return (
+    <>
       <div className="space-y-2">
         <Label htmlFor="domain-name">Domain Name *</Label>
         <Input
@@ -66,68 +108,6 @@ export function DomainFormFields({
           placeholder="Namecheap"
         />
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="domain-cost">Cost</Label>
-          <Input
-            id="domain-cost"
-            type="number"
-            step="0.01"
-            value={cost}
-            onChange={(e) => onCostChange(e.target.value)}
-            placeholder="12.99"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="domain-currency">Currency</Label>
-          <Select value={currency} onValueChange={onCurrencyChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CURRENCIES.map((curr) => (
-                <SelectItem key={curr} value={curr}>
-                  {curr}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="expiry-date">Expiry Date *</Label>
-        <Input
-          id="expiry-date"
-          type="date"
-          value={expiryDate}
-          onChange={(e) => onExpiryDateChange(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="registration-date">Registration Date</Label>
-        <Input
-          id="registration-date"
-          type="date"
-          value={registrationDate}
-          onChange={(e) => onRegistrationDateChange(e.target.value)}
-        />
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <input
-          id="auto-renew"
-          type="checkbox"
-          checked={autoRenew}
-          onChange={(e) => onAutoRenewChange(e.target.checked)}
-          className="h-4 w-4"
-        />
-        <Label htmlFor="auto-renew">Auto-renew enabled</Label>
-      </div>
-    </div>
+    </>
   );
 }

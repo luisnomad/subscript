@@ -6,26 +6,30 @@ interface ConfidenceScoreProps {
   score: number;
 }
 
+const PERCENTAGE_MULTIPLIER = 100;
+const HIGH_CONFIDENCE_THRESHOLD = 0.8;
+const MEDIUM_CONFIDENCE_THRESHOLD = 0.5;
+
 export function ConfidenceScore({
   score,
 }: ConfidenceScoreProps): React.ReactElement {
-  const percentage = Math.round(score * 100);
+  const percentage = Math.round(score * PERCENTAGE_MULTIPLIER);
 
   function getScoreColor(): string {
-    if (score >= 0.8) {return "#2d5f4f";}
-    if (score >= 0.5) {return "#d4a574";}
+    if (score >= HIGH_CONFIDENCE_THRESHOLD) {return "#2d5f4f";}
+    if (score >= MEDIUM_CONFIDENCE_THRESHOLD) {return "#d4a574";}
     return "#c45a5a";
   }
 
   function getScoreLabel(): string {
-    if (score >= 0.8) {return "High Confidence";}
-    if (score >= 0.5) {return "Medium Confidence";}
+    if (score >= HIGH_CONFIDENCE_THRESHOLD) {return "High Confidence";}
+    if (score >= MEDIUM_CONFIDENCE_THRESHOLD) {return "Medium Confidence";}
     return "Low Confidence";
   }
 
   function getScoreIcon(): React.ReactElement {
-    if (score >= 0.8) {return <TrendingUp className="h-3.5 w-3.5" />;}
-    if (score >= 0.5) {return <Minus className="h-3.5 w-3.5" />;}
+    if (score >= HIGH_CONFIDENCE_THRESHOLD) {return <TrendingUp className="h-3.5 w-3.5" />;}
+    if (score >= MEDIUM_CONFIDENCE_THRESHOLD) {return <Minus className="h-3.5 w-3.5" />;}
     return <TrendingDown className="h-3.5 w-3.5" />;
   }
 

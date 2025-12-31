@@ -1,5 +1,9 @@
 import { useState } from "react";
+
 import { Plus } from "lucide-react";
+
+import { NotesField } from "@/components/shared/FormSubComponents";
+import { SubscriptionFormFields } from "@/components/shared/SubscriptionFormFields";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,79 +17,98 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createSubscription } from "@/lib/tauri";
 import type { BillingCycle, SubscriptionStatus } from "@/lib/types";
-import { SubscriptionFormFields } from "@/components/shared/SubscriptionFormFields";
 
 interface AddSubscriptionDialogProps {
   onSuccess?: () => void;
   testMode?: boolean;
 }
 
-export function AddSubscriptionDialog({
-  onSuccess,
-  testMode = false,
-}: AddSubscriptionDialogProps) {
-  const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+interface AddSubscriptionFormState {
+  name: string;
+  cost: string;
+  currency: string;
+  billingCycle: BillingCycle;
+  nextDate: string;
+  category: string;
+  status: SubscriptionStatus;
+  notes: string;
+}
 
-  const [name, setName] = useState("");
-  const [cost, setCost] = useState("");
-  const [currency, setCurrency] = useState("USD");
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
-  const [nextDate, setNextDate] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState<SubscriptionStatus>("active");
-  const [notes, setNotes] = useState("");
+interface AddSubscriptionFormReturn {
+  state: AddSubscriptionFormState;
+  setState: React.Dispatch<React.SetStateAction<AddSubscriptionFormState>>;
+  isLoading: boolean;
+  handleSubmit: (e: React.FormEvent, setIsOpen: (open: boolean) => void) => Promise<void>;
+  resetForm: () => void;
+}
+
+const INITIAL_STATE: AddSubscriptionFormState = {
+  name: "",
+  cost: "",
+  currency: "USD",
+  billingCycle: "monthly",
+  nextDate: "",
+  category: "",
+  status: "active",
+  notes: "",
+};
+
+function useAddSubscriptionForm(onSuccess?: () => void, testMode = false): AddSubscriptionFormReturn {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState<AddSubscriptionFormState>(INITIAL_STATE);
 
   function resetForm(): void {
-    setName("");
-    setCost("");
-    setCurrency("USD");
-    setBillingCycle("monthly");
-    setNextDate("");
-    setCategory("");
-    setStatus("active");
-    setNotes("");
+    setState(INITIAL_STATE);
   }
 
-  async function handleSubmit(e: React.FormEvent): Promise<void> {
+  async function handleSubmit(
+    e: React.FormEvent,
+    setIsOpen: (open: boolean) => void
+  ): Promise<void> {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       await createSubscription(
         {
-          name,
-          cost: parseFloat(cost),
-          currency,
-          billingCycle,
-          nextBillingDate: nextDate || null,
-          category: category || null,
-          status,
-          notes: notes || null,
+          name: state.name,
+          cost: parseFloat(state.cost),
+          currency: state.currency,
+          billingCycle: state.billingCycle,
+          nextBillingDate: state.nextDate || null,
+          category: state.category || null,
+          status: state.status,
+          notes: state.notes || null,
         },
         testMode
       );
 
-      toast({
-        title: "Success",
-        description: "Subscription added successfully.",
-      });
-
+      toast({ title: "Success", description: "Subscription added successfully." });
       setIsOpen(false);
       resetForm();
-      if (onSuccess) onSuccess();
+      onSuccess?.();
     } catch (error) {
       console.error("Failed to create subscription:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add subscription. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to add subscription.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   }
+
+  return { state, setState, isLoading, handleSubmit, resetForm };
+}
+
+export function AddSubscriptionDialog({
+  onSuccess,
+  testMode = false,
+}: AddSubscriptionDialogProps): JSX.Element {
+  const [isOpen, setIsOpen] = useState(false);
+  const { state, setState, isLoading, handleSubmit } = useAddSubscriptionForm(onSuccess, testMode);
+
+  const updateField = <K extends keyof AddSubscriptionFormState>(key: K, value: AddSubscriptionFormState[K]): void => {
+    setState((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -96,51 +119,10 @@ export function AddSubscriptionDialog({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={(e) => { void handleSubmit(e); }}>
-          <DialogHeader>
-            <DialogTitle>Add New Subscription</DialogTitle>
-            <DialogDescription>
-              Manually add a subscription to your tracking list.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="py-4">
-            <SubscriptionFormFields
-              name={name}
-              cost={cost}
-              currency={currency}
-              billingCycle={billingCycle}
-              nextDate={nextDate}
-              category={category}
-              onNameChange={setName}
-              onCostChange={setCost}
-              onCurrencyChange={setCurrency}
-              onBillingCycleChange={setBillingCycle}
-              onNextDateChange={setNextDate}
-              onCategoryChange={setCategory}
-            />
-            
-            {/* Additional fields not in SubscriptionFormFields */}
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Notes</label>
-                <textarea
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any additional details..."
-                />
-              </div>
-            </div>
-          </div>
-
+        <form onSubmit={(e) => { void handleSubmit(e, setIsOpen); }}>
+          <AddSubscriptionDialogContent state={state} updateField={updateField} />
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
@@ -150,5 +132,41 @@ export function AddSubscriptionDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface AddSubscriptionDialogContentProps {
+  state: AddSubscriptionFormState;
+  updateField: <K extends keyof AddSubscriptionFormState>(key: K, value: AddSubscriptionFormState[K]) => void;
+}
+
+function AddSubscriptionDialogContent({ state, updateField }: AddSubscriptionDialogContentProps): JSX.Element {
+  return (
+    <>
+      <DialogHeader>
+        <DialogTitle>Add New Subscription</DialogTitle>
+        <DialogDescription>Manually add a subscription to your tracking list.</DialogDescription>
+      </DialogHeader>
+
+      <div className="py-4">
+        <SubscriptionFormFields
+          name={state.name}
+          cost={state.cost}
+          currency={state.currency}
+          billingCycle={state.billingCycle}
+          nextDate={state.nextDate}
+          category={state.category}
+          onNameChange={(v) => updateField("name", v)}
+          onCostChange={(v) => updateField("cost", v)}
+          onCurrencyChange={(v) => updateField("currency", v)}
+          onBillingCycleChange={(v) => updateField("billingCycle", v)}
+          onNextDateChange={(v) => updateField("nextDate", v)}
+          onCategoryChange={(v) => updateField("category", v)}
+        />
+        <div className="mt-4">
+          <NotesField notes={state.notes} onNotesChange={(v) => updateField("notes", v)} />
+        </div>
+      </div>
+    </>
   );
 }

@@ -11,6 +11,8 @@ import { EmptyState } from "./EmptyState";
 import { GenerateMockDataButton } from "./GenerateMockDataButton";
 import { PendingImportCard } from "./PendingImportCard";
 
+const ANIMATION_DELAY_STEP = 50;
+
 export function PendingQueueView(): React.ReactElement {
   const [imports, setImports] = useState<PendingImport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,8 +26,6 @@ export function PendingQueueView(): React.ReactElement {
     try {
       setIsLoading(true);
       const data = await getPendingImports(false);
-      console.log("Received pending imports from Rust:", data);
-      console.log("First import extractedData:", data[0]?.extractedData);
       setImports(data);
     } catch (error) {
       console.error("Failed to load pending imports:", error);
@@ -130,7 +130,7 @@ export function PendingQueueView(): React.ReactElement {
             <div
               key={importItem.id}
               style={{
-                animationDelay: `${index * 50}ms`,
+                animationDelay: `${index * ANIMATION_DELAY_STEP}ms`,
               }}
               className="animate-slide-up"
             >

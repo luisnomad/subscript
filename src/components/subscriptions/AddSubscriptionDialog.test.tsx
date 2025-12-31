@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
+
 import * as tauri from "@/lib/tauri";
+
+import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
 
 // Mock the tauri module
 vi.mock("@/lib/tauri", () => ({
@@ -14,7 +16,7 @@ describe("AddSubscriptionDialog", () => {
     expect(screen.getByText("Add Subscription")).toBeInTheDocument();
   });
 
-  it("opens the dialog when clicked", async () => {
+  it("opens the dialog when clicked", () => {
     render(<AddSubscriptionDialog />);
     fireEvent.click(screen.getByText("Add Subscription"));
     expect(screen.getByText("Add New Subscription")).toBeInTheDocument();
@@ -39,7 +41,7 @@ describe("AddSubscriptionDialog", () => {
 
     // Submit - find the form and submit it
     const form = screen.getByRole("dialog").querySelector("form");
-    if (!form) throw new Error("Form not found");
+    if (!form) {throw new Error("Form not found");}
     fireEvent.submit(form);
 
     await waitFor(() => {

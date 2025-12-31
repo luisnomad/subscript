@@ -63,9 +63,7 @@ export function PendingImportCard({
   async function handleApprove(): Promise<void> {
     try {
       setIsApproving(true);
-      console.log("Approving import:", importItem.id);
       await approvePendingImport(importItem.id, null, false);
-      console.log("Approve succeeded");
       toast({
         title: "Approved",
         description: `${importItem.classification === "subscription" ? "Subscription" : "Domain"} added successfully`,
