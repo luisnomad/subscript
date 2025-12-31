@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -35,7 +33,7 @@ export function EmailMetadataFields({
   onEmailDateChange,
   onClassificationChange,
   onConfidenceChange,
-}: EmailMetadataFieldsProps): JSX.Element {
+}: EmailMetadataFieldsProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Email Metadata</h3>

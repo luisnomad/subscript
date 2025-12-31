@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Plus } from "lucide-react";
 
@@ -20,9 +20,9 @@ import type {
   SubscriptionExtraction,
 } from "@/lib/types";
 
-import { DomainFormFields } from "./DomainFormFields";
+import { DomainFormFields } from "@/components/shared/DomainFormFields";
 import { EmailMetadataFields } from "./EmailMetadataFields";
-import { SubscriptionFormFields } from "./SubscriptionFormFields";
+import { SubscriptionFormFields } from "@/components/shared/SubscriptionFormFields";
 
 interface CreatePendingImportDialogProps {
   onSuccess?: () => void;
@@ -34,16 +34,17 @@ const DEFAULT_CONFIDENCE = 0.85;
 export function CreatePendingImportDialog({
   onSuccess,
   testMode = false,
-}: CreatePendingImportDialogProps): JSX.Element {
+}: CreatePendingImportDialogProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [emailSubject, setEmailSubject] = useState("");
   const [emailFrom, setEmailFrom] = useState("");
-  const [emailDate, setEmailDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [emailDate, setEmailDate] = useState(() => {
+    const today = new Date().toISOString().split("T")[0];
+    return today ?? "";
+  });
   const [classification, setClassification] = useState<string>("subscription");
   const [confidence, setConfidence] = useState(DEFAULT_CONFIDENCE);
 
@@ -66,7 +67,8 @@ export function CreatePendingImportDialog({
   function resetForm(): void {
     setEmailSubject("");
     setEmailFrom("");
-    setEmailDate(new Date().toISOString().split("T")[0]);
+    const today = new Date().toISOString().split("T")[0] ?? "";
+    setEmailDate(today);
     setClassification("subscription");
     setConfidence(DEFAULT_CONFIDENCE);
     setSubName("");
@@ -251,14 +253,14 @@ export function CreatePendingImportDialog({
 
           {classification === "domain" && (
             <DomainFormFields
-              name={domainName}
+              domainName={domainName}
               registrar={domainRegistrar}
               cost={domainCost}
               currency={domainCurrency}
               expiryDate={domainExpiryDate}
               registrationDate={domainRegistrationDate}
-              isAutoRenew={isDomainAutoRenew}
-              onNameChange={setDomainName}
+              autoRenew={isDomainAutoRenew}
+              onDomainNameChange={setDomainName}
               onRegistrarChange={setDomainRegistrar}
               onCostChange={setDomainCost}
               onCurrencyChange={setDomainCurrency}

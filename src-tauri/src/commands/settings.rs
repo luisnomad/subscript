@@ -2,28 +2,24 @@
 
 use crate::db::{get_db_connection, DatabaseType};
 use crate::models::AppSettings;
-use crate::utils::get_current_timestamp;
-use anyhow::Result;
+use crate::utils::{get_current_timestamp, AppResult};
 
 #[tauri::command]
-pub fn get_settings(test_mode: bool) -> Result<AppSettings, String> {
+pub fn get_settings(test_mode: bool) -> AppResult<AppSettings> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let mut stmt = conn
-        .prepare("SELECT key, value FROM settings")
-        .map_err(|e| e.to_string())?;
+        .prepare("SELECT key, value FROM settings")?;
 
     let settings_map: std::collections::HashMap<String, String> = stmt
-        .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
-        .map_err(|e| e.to_string())?
-        .collect::<Result<_, _>>()
-        .map_err(|e| e.to_string())?;
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .collect::<Result<_, _>>()?;
 
     let settings = AppSettings {
         imap_server: settings_map.get("imap_server").cloned().unwrap_or_default(),
@@ -61,14 +57,14 @@ pub fn get_settings(test_mode: bool) -> Result<AppSettings, String> {
 }
 
 #[tauri::command]
-pub fn update_settings(settings: AppSettings, test_mode: bool) -> Result<(), String> {
+pub fn update_settings(settings: AppSettings, test_mode: bool) -> AppResult<()> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let now = get_current_timestamp();
 
@@ -91,8 +87,7 @@ pub fn update_settings(settings: AppSettings, test_mode: bool) -> Result<(), Str
         conn.execute(
             "INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?1, ?2, ?3)",
             rusqlite::params![key, value, now],
-        )
-        .map_err(|e| e.to_string())?;
+        )?;
     }
 
     Ok(())

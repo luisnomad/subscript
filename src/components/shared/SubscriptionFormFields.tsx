@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -40,7 +38,7 @@ export function SubscriptionFormFields({
   onBillingCycleChange,
   onNextDateChange,
   onCategoryChange,
-}: SubscriptionFormFieldsProps): JSX.Element {
+}: SubscriptionFormFieldsProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Subscription Data</h3>

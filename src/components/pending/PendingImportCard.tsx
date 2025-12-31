@@ -45,8 +45,8 @@ export function PendingImportCard({
   const { toast } = useToast();
 
   // Debug log and safety check
-  if (!importItem.extracted_data) {
-    console.error("Missing extracted_data for import:", importItem);
+  if (!importItem.extractedData) {
+    console.error("Missing extractedData for import:", importItem);
     console.error("Import item keys:", Object.keys(importItem));
     console.error("Import item values:", Object.values(importItem));
     return (
@@ -57,7 +57,7 @@ export function PendingImportCard({
   }
 
   const extractedData = JSON.parse(
-    importItem.extracted_data
+    importItem.extractedData
   ) as SubscriptionExtraction | DomainExtraction;
 
   async function handleApprove(): Promise<void> {
@@ -160,13 +160,13 @@ export function PendingImportCard({
             <div className="flex items-start gap-2">
               <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#6b6b6b]" />
               <p className="font-mono text-xs text-[#6b6b6b] line-clamp-1">
-                {importItem.email_from}
+                {importItem.emailFrom}
               </p>
             </div>
             <div className="flex items-start gap-2">
               <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#6b6b6b]" />
               <p className="font-mono text-xs text-[#6b6b6b]">
-                {new Date(importItem.email_date).toLocaleDateString("en-US", {
+                {new Date(importItem.emailDate).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
@@ -174,7 +174,7 @@ export function PendingImportCard({
               </p>
             </div>
             <p className="font-display text-sm font-medium text-[#2a2a2a] line-clamp-2">
-              {importItem.email_subject}
+              {importItem.emailSubject}
             </p>
           </div>
 

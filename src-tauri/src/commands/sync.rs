@@ -1,19 +1,18 @@
 // Email sync command handlers
 
 use crate::db::{get_db_connection, DatabaseType};
-use crate::utils::get_current_timestamp;
-use anyhow::Result;
+use crate::utils::{get_current_timestamp, AppResult};
 use rusqlite::OptionalExtension;
 
 #[tauri::command]
-pub fn trigger_email_sync(test_mode: bool) -> Result<String, String> {
+pub fn trigger_email_sync(test_mode: bool) -> AppResult<String> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let now = get_current_timestamp();
 
@@ -21,8 +20,7 @@ pub fn trigger_email_sync(test_mode: bool) -> Result<String, String> {
     conn.execute(
         "INSERT INTO sync_log (sync_started_at, status, created_at) VALUES (?1, 'running', ?2)",
         rusqlite::params![now.clone(), now],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     // Placeholder for actual email sync logic
     // This will be implemented in Phase 3
@@ -30,14 +28,14 @@ pub fn trigger_email_sync(test_mode: bool) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn get_last_sync_time(test_mode: bool) -> Result<Option<String>, String> {
+pub fn get_last_sync_time(test_mode: bool) -> AppResult<Option<String>> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let last_sync = conn
         .query_row(
@@ -45,8 +43,7 @@ pub fn get_last_sync_time(test_mode: bool) -> Result<Option<String>, String> {
             [],
             |row| row.get(0),
         )
-        .optional()
-        .map_err(|e| e.to_string())?;
+        .optional()?;
 
     Ok(last_sync)
 }

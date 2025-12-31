@@ -33,10 +33,10 @@ export type DomainStatus = "active" | "expired" | "pending-renewal";
 export interface Domain {
   id: number;
   domainName: string;
-  registrar: string;
-  cost: number;
-  currency: string;
-  registrationDate: string; // ISO 8601 date
+  registrar: string | null;
+  cost: number | null;
+  currency: string | null;
+  registrationDate: string | null; // ISO 8601 date
   expiryDate: string; // ISO 8601 date
   autoRenew: boolean;
   status: DomainStatus;
@@ -53,15 +53,15 @@ export type ImportClassification = "subscription" | "domain" | "junk";
 
 export interface PendingImport {
   id: number;
-  email_subject: string;
-  email_from: string;
-  email_date: string; // ISO 8601 datetime
+  emailSubject: string;
+  emailFrom: string;
+  emailDate: string; // ISO 8601 datetime
   classification: ImportClassification;
-  extracted_data: string; // JSON string
+  extractedData: string; // JSON string
   confidence: number; // 0.0 to 1.0
-  receipt_id: number | null;
+  receiptId: number | null;
   status: string;
-  created_at: string; // ISO 8601 datetime
+  createdAt: string; // ISO 8601 datetime
 }
 
 // Parsed extracted data interfaces (JSON.parse of extractedData field)
@@ -90,11 +90,14 @@ export interface DomainExtraction {
 
 export interface Receipt {
   id: number;
+  subscriptionId?: number;
+  domainId?: number;
   emailSubject: string;
   emailFrom: string;
   emailDate: string; // ISO 8601 datetime
-  attachmentData: string; // Base64 encoded
-  attachmentMimeType: string;
+  attachmentData?: string; // Base64 encoded
+  attachmentMimeType?: string;
+  rawEmailBody?: string;
   createdAt: string; // ISO 8601 datetime
 }
 

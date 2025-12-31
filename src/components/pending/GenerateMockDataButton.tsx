@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Sparkles } from "lucide-react";
 
@@ -34,7 +34,7 @@ const MOCK_COUNTS = [1, 3, 5, 10];
 export function GenerateMockDataButton({
   onSuccess,
   testMode = false,
-}: GenerateMockDataButtonProps): JSX.Element {
+}: GenerateMockDataButtonProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

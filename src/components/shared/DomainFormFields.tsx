@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,14 +10,14 @@ import {
 import { CURRENCIES } from "@/lib/constants";
 
 interface DomainFormFieldsProps {
-  name: string;
+  domainName: string;
   registrar: string;
   cost: string;
   currency: string;
   expiryDate: string;
   registrationDate: string;
-  isAutoRenew: boolean;
-  onNameChange: (value: string) => void;
+  autoRenew: boolean;
+  onDomainNameChange: (value: string) => void;
   onRegistrarChange: (value: string) => void;
   onCostChange: (value: string) => void;
   onCurrencyChange: (value: string) => void;
@@ -29,21 +27,21 @@ interface DomainFormFieldsProps {
 }
 
 export function DomainFormFields({
-  name,
+  domainName,
   registrar,
   cost,
   currency,
   expiryDate,
   registrationDate,
-  isAutoRenew,
-  onNameChange,
+  autoRenew,
+  onDomainNameChange,
   onRegistrarChange,
   onCostChange,
   onCurrencyChange,
   onExpiryDateChange,
   onRegistrationDateChange,
   onAutoRenewChange,
-}: DomainFormFieldsProps): JSX.Element {
+}: DomainFormFieldsProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Domain Data</h3>
@@ -52,8 +50,8 @@ export function DomainFormFields({
         <Label htmlFor="domain-name">Domain Name *</Label>
         <Input
           id="domain-name"
-          value={name}
-          onChange={(e) => onNameChange(e.target.value)}
+          value={domainName}
+          onChange={(e) => onDomainNameChange(e.target.value)}
           placeholder="example.com"
           required
         />
@@ -124,7 +122,7 @@ export function DomainFormFields({
         <input
           id="auto-renew"
           type="checkbox"
-          checked={isAutoRenew}
+          checked={autoRenew}
           onChange={(e) => onAutoRenewChange(e.target.checked)}
           className="h-4 w-4"
         />

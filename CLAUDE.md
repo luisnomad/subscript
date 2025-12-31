@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **SubScript** is a local-first desktop application for tracking subscriptions and domain registrations through automated email receipt processing. Built with **Tauri 2.x** (Rust backend) and **React/TypeScript** (frontend), it monitors IMAP email for receipts, extracts data using local Ollama LLM, and presents results for user review before saving.
 
-**Current Status**: Project is in planning/documentation phase. No source code has been scaffolded yet. Implementation follows the detailed specifications in `ARCHITECTURE.md`.
+**Current Status**: Phase 1 (Initialization), Phase 2 (Database & Backend), and Phase 3 (Pending Review UI) are COMPLETED. The application has a functional backend with SQLite, Tauri commands, and a React frontend for reviewing pending imports. Standardized on camelCase for API boundary and implemented structured error handling.
 
 ## Technology Stack
 
 - **Backend**: Tauri 2.x, Rust, SQLite (rusqlite), IMAP client
 - **Frontend**: React 18+, TypeScript (strict mode), Tailwind CSS, Shadcn/ui, Vite
+- **Testing**: Vitest, React Testing Library, happy-dom (Frontend) / Cargo test (Backend)
 - **Package Manager**: pnpm (fast, disk-efficient alternative to npm)
 - **External**: Python 3.8+ (MarkItDown), Ollama (local LLM)
 - **Code Quality**: ESLint (40+ strict rules), Prettier

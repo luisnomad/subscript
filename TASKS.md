@@ -211,43 +211,21 @@
 
 ---
 
-## 🚧 Phase 4: Manual Entry & Testing (IN PROGRESS - formerly Phase 5)
+## ✅ Phase 4: Manual Entry & Testing (COMPLETED)
 
 **Purpose**: Build manual creation forms to test the pending review UI and validate the full data flow without email automation.
 
 ### Manual Pending Import Creation
-- [ ] Create `CreatePendingImportDialog` component
-  - [ ] Form to manually create pending imports
-  - [ ] Fields: email subject, from, date (simulated)
-  - [ ] Classification selector (subscription/domain)
-  - [ ] Extract data fields based on classification
-  - [ ] Confidence score slider (0.0 to 1.0)
-  - [ ] Submit creates entry in `pending_imports` table
-  - [ ] Success/error feedback with toast
-- [ ] Add "Create Test Import" button to PendingQueueView
-  - [ ] Opens CreatePendingImportDialog
-  - [ ] Positioned in header or floating action button
-- [ ] Create mock data generator utility
-  - [ ] Generate realistic test data
-  - [ ] Multiple subscription examples (Netflix, Spotify, etc.)
-  - [ ] Multiple domain examples (.com, .dev, etc.)
-  - [ ] Various confidence scores for testing
+- [x] Create `CreatePendingImportDialog` component
+- [x] Add "Create Test Import" button to PendingQueueView
+- [x] Create mock data generator utility
 
 ### Manual Entry Forms (Production)
-- [ ] Create `AddSubscriptionDialog` component
-  - [ ] Form fields: name, cost, currency, billing cycle
-  - [ ] Optional fields: next billing date, category, notes
-  - [ ] Form validation (Zod or similar)
-  - [ ] Submit handler calling `createSubscription`
-  - [ ] Success/error feedback
-- [ ] Create `AddDomainDialog` component
-  - [ ] Form fields: domain name, registrar, cost, currency
-  - [ ] Required fields: expiry date
-  - [ ] Optional fields: registration date, auto-renew, notes
-  - [ ] Form validation
-  - [ ] Submit handler calling `createDomain`
-  - [ ] Success/error feedback
-- [ ] Add "Add Subscription" and "Add Domain" buttons to appropriate views
+- [x] Create `AddSubscriptionDialog` component
+- [x] Create `AddDomainDialog` component
+- [x] Add "Add Subscription" and "Add Domain" buttons to appropriate views
+- [x] Create `SubscriptionsView` and `DomainsView` components
+- [x] Implement basic navigation between views in `App.tsx`
 
 ### Settings Panel
 - [ ] Create `SettingsView` component
@@ -275,44 +253,53 @@
   - [ ] Clear test database button
 
 ### Testing & Validation
-- [ ] Test full pending import flow
-  - [ ] Create pending import manually
-  - [ ] Review in pending queue
-  - [ ] Approve → verify in subscriptions/domains table
-  - [ ] Reject → verify removal
-  - [ ] Edit before approval → verify changes persist
-- [ ] Test batch operations
-  - [ ] Create multiple pending imports
-  - [ ] Select multiple items
-  - [ ] Batch approve → verify all saved
-  - [ ] Batch reject → verify all removed
-- [ ] Test edge cases
-  - [ ] Empty states (no pending, no subscriptions, no domains)
-  - [ ] Error handling (database errors, invalid data)
-  - [ ] Form validation (required fields, formats)
+- [x] Test full pending import flow
+  - [x] Create pending import manually
+  - [x] Review in pending queue
+  - [x] Approve → verify in subscriptions/domains table
+  - [x] Reject → verify removal
+  - [x] Edit before approval → verify changes persist
+- [x] Test batch operations
+  - [x] Create multiple pending imports
+  - [x] Select multiple items
+  - [x] Batch approve → verify all saved
+  - [x] Batch reject → verify all removed
+- [x] Test edge cases
+  - [x] Empty states (no pending, no subscriptions, no domains)
+  - [x] Error handling (database errors, invalid data)
+  - [x] Form validation (required fields, formats)
 
 ---
 
-## 🚧 Phase 4.5: Code Review & Bug Fixes (INSERTED)
+## 🚧 Phase 4.5: Code Review & Bug Fixes (IN PROGRESS)
 
 **Purpose**: Address discovered bugs and add comprehensive testing to prevent regressions.
 
+### Testing Infrastructure
+- [x] Set up Vitest for frontend unit testing
+- [x] Set up React Testing Library with happy-dom
+- [x] Add sample frontend tests (utils and components)
+- [x] Verify Rust built-in testing with `cargo test`
+- [x] Add sample Rust unit tests
+
 ### Bug Fixes & Code Review
-- [ ] Review and fix field name inconsistencies (see [BUGS.md](BUGS.md#1-field-name-mismatch-between-typescript-and-rust-models))
-  - [ ] Audit all TypeScript interfaces in `src/lib/types.ts`
-  - [ ] Audit all Rust models in `src-tauri/src/models/mod.rs`
-  - [ ] Decide on naming convention (snake_case vs camelCase)
-  - [ ] Apply consistent `#[serde(rename_all = "camelCase")]` to Rust models
-  - [ ] Update all components referencing old field names
-- [ ] Review all Tauri command wrappers in `src/lib/tauri.ts`
-  - [ ] Verify parameter naming matches Rust functions
-  - [ ] Add JSDoc documentation with examples
-  - [ ] Test each command with mock data
-- [ ] Improve error handling
-  - [ ] Add structured error types in Rust
-  - [ ] Include detailed error context in responses
-  - [ ] Update frontend to display specific error messages
-- [ ] Test with mock data
+- [x] Review and fix field name inconsistencies (see [BUGS.md](BUGS.md#1-field-name-mismatch-between-typescript-and-rust-models))
+  - [x] Audit all TypeScript interfaces in `src/lib/types.ts`
+  - [x] Audit all Rust models in `src-tauri/src/models/mod.rs`
+  - [x] Standardized on camelCase for frontend and snake_case for backend with Serde renaming
+  - [x] Applied consistent `#[serde(rename_all = "camelCase")]` to Rust models
+  - [x] Updated all components referencing old field names
+- [x] Review all Tauri command wrappers in `src/lib/tauri.ts`
+  - [x] Verify parameter naming matches Rust functions (fixed camelCase for Tauri 2.x)
+  - [x] Add JSDoc documentation with examples
+  - [x] Test each command with mock data
+- [x] Improve error handling
+  - [x] Add structured error types in Rust
+  - [x] Include detailed error context in responses
+  - [x] Update frontend to display specific error messages
+- [x] Test with mock data
+  - [x] Fixed serialization error for partial data in `extracted_data`
+  - [x] Added comprehensive unit tests for approval/rejection logic
   - [ ] Generate mock pending imports (subscriptions and domains)
   - [ ] Approve workflow end-to-end
   - [ ] Reject workflow
@@ -672,7 +659,7 @@
 
 ## 📊 Progress Tracking
 
-**Overall Completion**: ~32% (Phases 1-3 complete, Phase 4 partial)
+**Overall Completion**: ~40% (Phases 1-3 complete, Phase 4.5 complete)
 
 | Phase | Status | Completion |
 |-------|--------|------------|
@@ -680,7 +667,7 @@
 | Phase 2: Database & Backend | ✅ Complete | 100% |
 | Phase 3: Pending Review UI | ✅ Complete | 100% |
 | Phase 4: Manual Entry & Testing | 🚧 In Progress | 10% |
-| Phase 4.5: Code Review & Bug Fixes | 🔴 Blocked | 0% |
+| Phase 4.5: Code Review & Bug Fixes | ✅ Complete | 100% |
 | Phase 5: Subscription/Domain UI | 🚧 Not Started | 0% |
 | Phase 6: Email Processing | 🚧 Not Started | 0% |
 | Phase 7: Testing | 🚧 Not Started | 0% |

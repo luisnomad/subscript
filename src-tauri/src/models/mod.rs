@@ -4,15 +4,16 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Subscription {
     pub id: Option<i64>,
     pub name: String,
-    #[serde(alias = "cost")]
+    #[serde(rename = "cost")]
     pub amount: f64,
     pub currency: String,
-    #[serde(alias = "billingCycle")]
+    #[serde(rename = "billingCycle")]
     pub periodicity: String, // "monthly", "yearly", "one-time"
-    #[serde(alias = "nextBillingDate")]
+    #[serde(rename = "nextBillingDate")]
     pub next_date: Option<String>,
     pub category: Option<String>,
     pub status: String, // "active", "paused", "cancelled"
@@ -22,19 +23,51 @@ pub struct Subscription {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Domain {
-    pub id: Option<i64>,
-    #[serde(alias = "domainName")]
+#[serde(rename_all = "camelCase")]
+pub struct SubscriptionExtraction {
+    pub name: String,
+    #[serde(rename = "cost")]
+    pub amount: f64,
+    pub currency: String,
+    #[serde(rename = "billingCycle")]
+    pub periodicity: String,
+    #[serde(rename = "nextBillingDate")]
+    pub next_date: Option<String>,
+    pub category: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DomainExtraction {
+    #[serde(rename = "domainName")]
     pub name: String,
     pub registrar: Option<String>,
-    #[serde(alias = "cost")]
+    #[serde(rename = "cost")]
     pub amount: Option<f64>,
     pub currency: Option<String>,
-    #[serde(alias = "registrationDate")]
+    #[serde(rename = "registrationDate")]
     pub registration_date: Option<String>,
-    #[serde(alias = "expiryDate")]
+    #[serde(rename = "expiryDate")]
     pub expiry_date: String,
-    #[serde(alias = "autoRenew")]
+    #[serde(rename = "autoRenew")]
+    pub auto_renew: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Domain {
+    pub id: Option<i64>,
+    #[serde(rename = "domainName")]
+    pub name: String,
+    pub registrar: Option<String>,
+    #[serde(rename = "cost")]
+    pub amount: Option<f64>,
+    pub currency: Option<String>,
+    #[serde(rename = "registrationDate")]
+    pub registration_date: Option<String>,
+    #[serde(rename = "expiryDate")]
+    pub expiry_date: String,
+    #[serde(rename = "autoRenew")]
     pub auto_renew: bool,
     pub status: String, // "active", "expired", "pending-renewal"
     pub notes: Option<String>,
@@ -43,6 +76,7 @@ pub struct Domain {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PendingImport {
     pub id: Option<i64>,
     pub email_subject: Option<String>,
@@ -57,6 +91,7 @@ pub struct PendingImport {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Receipt {
     pub id: Option<i64>,
     pub subscription_id: Option<i64>,
@@ -64,13 +99,16 @@ pub struct Receipt {
     pub email_subject: Option<String>,
     pub email_from: Option<String>,
     pub email_date: String,
+    #[serde(rename = "attachmentMimeType")]
     pub file_type: Option<String>,
+    #[serde(rename = "attachmentData")]
     pub file_data: Option<String>, // Base64 encoded
     pub raw_email_body: Option<String>,
     pub created_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub imap_server: String,
     pub imap_port: i32,
@@ -83,6 +121,7 @@ pub struct AppSettings {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SyncLog {
     pub id: Option<i64>,
     pub sync_started_at: String,

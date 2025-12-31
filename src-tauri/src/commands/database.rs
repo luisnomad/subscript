@@ -1,29 +1,29 @@
 // Database management command handlers
 
 use crate::db::{clear_test_database, get_db_connection, get_db_path, DatabaseType};
-use anyhow::Result;
+use crate::utils::AppResult;
 use std::fs;
 
 #[tauri::command]
-pub fn clear_test_db() -> Result<(), String> {
-    let conn = get_db_connection(DatabaseType::Test).map_err(|e| e.to_string())?;
-    clear_test_database(&conn).map_err(|e| e.to_string())?;
+pub fn clear_test_db() -> AppResult<()> {
+    let conn = get_db_connection(DatabaseType::Test)?;
+    clear_test_database(&conn)?;
     Ok(())
 }
 
 #[tauri::command]
-pub fn export_database(test_mode: bool) -> Result<String, String> {
+pub fn export_database(test_mode: bool) -> AppResult<String> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let db_path = get_db_path(db_type).map_err(|e| e.to_string())?;
+    let db_path = get_db_path(db_type)?;
 
     // Get user's downloads directory
     let export_dir = dirs::download_dir()
-        .ok_or("Could not find downloads directory")?;
+        .ok_or_else(|| crate::utils::error::AppError::NotFound("Could not find downloads directory".to_string()))?;
 
     let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
     let export_filename = if test_mode {
@@ -35,7 +35,7 @@ pub fn export_database(test_mode: bool) -> Result<String, String> {
     let export_path = export_dir.join(export_filename);
 
     // Copy the database file
-    fs::copy(&db_path, &export_path).map_err(|e| e.to_string())?;
+    fs::copy(&db_path, &export_path)?;
 
     Ok(export_path.to_string_lossy().to_string())
 }

@@ -2,18 +2,18 @@
 
 use crate::db::{get_db_connection, DatabaseType};
 use crate::models::Receipt;
-use anyhow::Result;
+use crate::utils::AppResult;
 use chrono::{Duration, Utc};
 
 #[tauri::command]
-pub fn get_receipt_by_id(id: i64, test_mode: bool) -> Result<Receipt, String> {
+pub fn get_receipt_by_id(id: i64, test_mode: bool) -> AppResult<Receipt> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let receipt = conn
         .query_row(
@@ -33,21 +33,20 @@ pub fn get_receipt_by_id(id: i64, test_mode: bool) -> Result<Receipt, String> {
                     created_at: row.get(9)?,
                 })
             },
-        )
-        .map_err(|e| e.to_string())?;
+        )?;
 
     Ok(receipt)
 }
 
 #[tauri::command]
-pub fn delete_old_receipts(test_mode: bool) -> Result<usize, String> {
+pub fn delete_old_receipts(test_mode: bool) -> AppResult<usize> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     // Calculate date 1 year ago
     let one_year_ago = Utc::now() - Duration::days(365);
@@ -57,8 +56,7 @@ pub fn delete_old_receipts(test_mode: bool) -> Result<usize, String> {
         .execute(
             "DELETE FROM receipts WHERE created_at < ?1",
             [cutoff_date],
-        )
-        .map_err(|e| e.to_string())?;
+        )?;
 
     Ok(deleted)
 }

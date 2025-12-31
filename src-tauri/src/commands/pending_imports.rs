@@ -1,23 +1,22 @@
 // Pending import command handlers
 
 use crate::db::{get_db_connection, DatabaseType};
-use crate::models::{PendingImport, Subscription, Domain};
-use crate::utils::get_current_timestamp;
-use anyhow::Result;
+use crate::models::{PendingImport, Subscription, Domain, SubscriptionExtraction, DomainExtraction};
+use crate::utils::{get_current_timestamp, AppResult};
+use rusqlite::OptionalExtension;
 
 #[tauri::command]
-pub fn get_pending_imports(test_mode: bool) -> Result<Vec<PendingImport>, String> {
+pub fn get_pending_imports(test_mode: bool) -> AppResult<Vec<PendingImport>> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     let mut stmt = conn
-        .prepare("SELECT id, email_subject, email_from, email_date, classification, confidence, extracted_data, receipt_id, status, created_at FROM pending_imports WHERE status = 'pending' ORDER BY created_at DESC")
-        .map_err(|e| e.to_string())?;
+        .prepare("SELECT id, email_subject, email_from, email_date, classification, confidence, extracted_data, receipt_id, status, created_at FROM pending_imports WHERE status = 'pending' ORDER BY created_at DESC")?;
 
     let imports = stmt
         .query_map([], |row| {
@@ -35,10 +34,8 @@ pub fn get_pending_imports(test_mode: bool) -> Result<Vec<PendingImport>, String
                 status: row.get(8)?,
                 created_at: row.get(9)?,
             })
-        })
-        .map_err(|e| e.to_string())?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
 
     println!("Found {} pending imports", imports.len());
     Ok(imports)
@@ -49,14 +46,14 @@ pub fn approve_pending_import(
     id: i64,
     edited_data: Option<String>,
     test_mode: bool,
-) -> Result<(), String> {
+) -> AppResult<()> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     // Fetch the pending import
     let pending_import: PendingImport = conn
@@ -77,25 +74,44 @@ pub fn approve_pending_import(
                     created_at: row.get(9)?,
                 })
             },
-        )
-        .map_err(|e| e.to_string())?;
+        )?;
 
     // Use edited data if provided, otherwise use extracted data
     let data_to_use = edited_data.unwrap_or(pending_import.extracted_data);
 
     // Parse the JSON data based on classification
-    match pending_import.classification.as_deref() {
+    let created_id = match pending_import.classification.as_deref() {
         Some("subscription") => {
-            let subscription: Subscription =
-                serde_json::from_str(&data_to_use).map_err(|e| e.to_string())?;
-            create_subscription_from_import(subscription, &conn)?;
+            let extraction: SubscriptionExtraction = serde_json::from_str(&data_to_use)?;
+            create_subscription_from_import(extraction, &conn)?
         }
         Some("domain") => {
-            let domain: Domain = serde_json::from_str(&data_to_use).map_err(|e| e.to_string())?;
-            create_domain_from_import(domain, &conn)?;
+            let extraction: DomainExtraction = serde_json::from_str(&data_to_use)?;
+            create_domain_from_import(extraction, &conn)?
         }
         _ => {
-            return Err("Invalid classification or junk email".to_string());
+            return Err(crate::utils::error::AppError::Validation(
+                "Invalid classification or junk email".to_string(),
+            ));
+        }
+    };
+
+    // Link receipt if exists
+    if let Some(receipt_id) = pending_import.receipt_id {
+        match pending_import.classification.as_deref() {
+            Some("subscription") => {
+                conn.execute(
+                    "UPDATE receipts SET subscription_id = ?1 WHERE id = ?2",
+                    [created_id, receipt_id],
+                )?;
+            }
+            Some("domain") => {
+                conn.execute(
+                    "UPDATE receipts SET domain_id = ?1 WHERE id = ?2",
+                    [created_id, receipt_id],
+                )?;
+            }
+            _ => {}
         }
     }
 
@@ -110,26 +126,25 @@ pub fn approve_pending_import(
 }
 
 #[tauri::command]
-pub fn reject_pending_import(id: i64, test_mode: bool) -> Result<(), String> {
+pub fn reject_pending_import(id: i64, test_mode: bool) -> AppResult<()> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
 
     conn.execute(
         "UPDATE pending_imports SET status = 'rejected' WHERE id = ?1",
         [id],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     Ok(())
 }
 
 #[tauri::command]
-pub fn batch_approve_pending_imports(ids: Vec<i64>, test_mode: bool) -> Result<(), String> {
+pub fn batch_approve_pending_imports(ids: Vec<i64>, test_mode: bool) -> AppResult<()> {
     for id in ids {
         approve_pending_import(id, None, test_mode)?;
     }
@@ -137,7 +152,7 @@ pub fn batch_approve_pending_imports(ids: Vec<i64>, test_mode: bool) -> Result<(
 }
 
 #[tauri::command]
-pub fn batch_reject_pending_imports(ids: Vec<i64>, test_mode: bool) -> Result<(), String> {
+pub fn batch_reject_pending_imports(ids: Vec<i64>, test_mode: bool) -> AppResult<()> {
     for id in ids {
         reject_pending_import(id, test_mode)?;
     }
@@ -146,59 +161,97 @@ pub fn batch_reject_pending_imports(ids: Vec<i64>, test_mode: bool) -> Result<()
 
 // Helper function to create subscription from import
 fn create_subscription_from_import(
-    subscription: Subscription,
+    extraction: SubscriptionExtraction,
     conn: &rusqlite::Connection,
-) -> Result<i64, String> {
+) -> AppResult<i64> {
     let now = get_current_timestamp();
 
     conn.execute(
         "INSERT INTO subscriptions (name, amount, currency, periodicity, next_date, category, status, notes, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
         rusqlite::params![
-            subscription.name,
-            subscription.amount,
-            subscription.currency,
-            subscription.periodicity,
-            subscription.next_date,
-            subscription.category,
-            subscription.status,
-            subscription.notes,
+            extraction.name,
+            extraction.amount,
+            extraction.currency,
+            extraction.periodicity,
+            extraction.next_date,
+            extraction.category,
+            "active", // Default status
+            None::<String>, // No notes from extraction
             now,
             now,
         ],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     Ok(conn.last_insert_rowid())
 }
 
 // Helper function to create domain from import
 fn create_domain_from_import(
-    domain: Domain,
+    extraction: DomainExtraction,
     conn: &rusqlite::Connection,
-) -> Result<i64, String> {
+) -> AppResult<i64> {
     let now = get_current_timestamp();
 
-    conn.execute(
-        "INSERT INTO domains (name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
-        rusqlite::params![
-            domain.name,
-            domain.registrar,
-            domain.amount,
-            domain.currency,
-            domain.registration_date,
-            domain.expiry_date,
-            if domain.auto_renew { 1 } else { 0 },
-            domain.status,
-            domain.notes,
-            now,
-            now,
-        ],
-    )
-    .map_err(|e| e.to_string())?;
+    // Check if domain exists
+    let existing_id: Option<i64> = conn
+        .query_row(
+            "SELECT id FROM domains WHERE name = ?1",
+            [&extraction.name],
+            |row| row.get(0),
+        )
+        .optional()?;
 
-    Ok(conn.last_insert_rowid())
+    if let Some(id) = existing_id {
+        // Update existing domain
+        conn.execute(
+            "UPDATE domains SET 
+                registrar = COALESCE(?1, registrar),
+                amount = COALESCE(?2, amount),
+                currency = COALESCE(?3, currency),
+                registration_date = COALESCE(?4, registration_date),
+                expiry_date = ?5,
+                auto_renew = COALESCE(?6, auto_renew),
+                updated_at = ?7
+             WHERE id = ?8",
+            rusqlite::params![
+                extraction.registrar,
+                extraction.amount,
+                extraction.currency,
+                extraction.registration_date,
+                extraction.expiry_date,
+                extraction.auto_renew.map(|b| if b { 1 } else { 0 }),
+                now,
+                id
+            ],
+        )?;
+        Ok(id)
+    } else {
+        // Insert new domain
+        conn.execute(
+            "INSERT INTO domains (name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+            rusqlite::params![
+                extraction.name,
+                extraction.registrar,
+                extraction.amount,
+                extraction.currency,
+                extraction.registration_date,
+                extraction.expiry_date,
+                if extraction.auto_renew.unwrap_or(false) {
+                    1
+                } else {
+                    0
+                },
+                "active",       // Default status
+                None::<String>, // No notes from extraction
+                now,
+                now,
+            ],
+        )?;
+
+        Ok(conn.last_insert_rowid())
+    }
 }
 
 // Create a new pending import (for manual/test creation)
@@ -211,14 +264,14 @@ pub fn create_pending_import(
     extracted_data: String,
     confidence: f64,
     test_mode: bool,
-) -> Result<i64, String> {
+) -> AppResult<i64> {
     let db_type = if test_mode {
         DatabaseType::Test
     } else {
         DatabaseType::Production
     };
 
-    let conn = get_db_connection(db_type).map_err(|e| e.to_string())?;
+    let conn = get_db_connection(db_type)?;
     let now = get_current_timestamp();
 
     // Debug log
@@ -236,11 +289,91 @@ pub fn create_pending_import(
             extracted_data,
             now,
         ],
-    )
-    .map_err(|e| e.to_string())?;
+    )?;
 
     let id = conn.last_insert_rowid();
     println!("Created pending import with id: {}", id);
     
     Ok(id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::{get_db_connection, DatabaseType, init_database, clear_test_database};
+
+    fn setup_test_db() {
+        let conn = get_db_connection(DatabaseType::Test).unwrap();
+        init_database(&conn).unwrap();
+        clear_test_database(&conn).unwrap();
+    }
+
+    #[test]
+    fn test_create_and_get_pending_imports() {
+        setup_test_db();
+        
+        let id = create_pending_import(
+            "Test Subject".to_string(),
+            "test@example.com".to_string(),
+            "2024-01-01".to_string(),
+            "subscription".to_string(),
+            "{\"name\":\"Test\"}".to_string(),
+            0.95,
+            true
+        ).unwrap();
+
+        assert!(id > 0);
+
+        let imports = get_pending_imports(true).unwrap();
+        assert_eq!(imports.len(), 1);
+        assert_eq!(imports[0].email_subject, Some("Test Subject".to_string()));
+        assert_eq!(imports[0].email_from, "test@example.com");
+        assert_eq!(imports[0].extracted_data, "{\"name\":\"Test\"}");
+    }
+
+    #[test]
+    fn test_approve_pending_import() {
+        setup_test_db();
+        
+        let id = create_pending_import(
+            "Netflix Receipt".to_string(),
+            "info@netflix.com".to_string(),
+            "2024-01-01".to_string(),
+            "subscription".to_string(),
+            "{\"name\":\"Netflix\",\"cost\":15.99,\"currency\":\"USD\",\"billingCycle\":\"monthly\"}".to_string(),
+            0.99,
+            true
+        ).unwrap();
+
+        approve_pending_import(id, None, true).unwrap();
+
+        // Verify it's no longer in pending
+        let imports = get_pending_imports(true).unwrap();
+        assert_eq!(imports.len(), 0);
+
+        // Verify it's in subscriptions
+        let conn = get_db_connection(DatabaseType::Test).unwrap();
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM subscriptions", [], |r| r.get(0)).unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn test_reject_pending_import() {
+        setup_test_db();
+        
+        let id = create_pending_import(
+            "Spam".to_string(),
+            "spam@example.com".to_string(),
+            "2024-01-01".to_string(),
+            "junk".to_string(),
+            "{}".to_string(),
+            0.1,
+            true
+        ).unwrap();
+
+        reject_pending_import(id, true).unwrap();
+
+        let imports = get_pending_imports(true).unwrap();
+        assert_eq!(imports.len(), 0);
+    }
 }

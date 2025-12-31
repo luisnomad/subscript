@@ -30,7 +30,7 @@ export function EditDialog({
   onCancel,
 }: EditDialogProps): React.ReactElement {
   const extractedData = JSON.parse(
-    importItem.extracted_data
+    importItem.extractedData
   ) as SubscriptionExtraction | DomainExtraction;
 
   const [formData, setFormData] = useState(extractedData);

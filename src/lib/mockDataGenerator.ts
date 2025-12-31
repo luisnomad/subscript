@@ -150,9 +150,13 @@ const MOCK_DOMAINS = [
 /**
  * Get a random item from an array
  */
-function getRandomItem<T>(array: T[]): T {
+function getRandomItem<T>(array: readonly T[]): T {
   const randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
+  const item = array[randomIndex];
+  if (item === undefined) {
+    throw new Error("Array is empty");
+  }
+  return item;
 }
 
 /**
@@ -162,7 +166,8 @@ function getRandomRecentDate(): string {
   const now = new Date();
   const daysAgo = Math.floor(Math.random() * 30);
   const date = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-  return date.toISOString().split("T")[0];
+  const dateStr = date.toISOString().split("T")[0];
+  return dateStr ?? "";
 }
 
 /**
@@ -172,7 +177,8 @@ function getRandomFutureDate(): string {
   const now = new Date();
   const daysFromNow = 30 + Math.floor(Math.random() * 60);
   const date = new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
-  return date.toISOString().split("T")[0];
+  const dateStr = date.toISOString().split("T")[0];
+  return dateStr ?? "";
 }
 
 /**
@@ -182,7 +188,8 @@ function getRandomDomainExpiryDate(): string {
   const now = new Date();
   const daysFromNow = 300 + Math.floor(Math.random() * 100);
   const date = new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
-  return date.toISOString().split("T")[0];
+  const dateStr = date.toISOString().split("T")[0];
+  return dateStr ?? "";
 }
 
 /**

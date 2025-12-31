@@ -8,90 +8,47 @@ This document tracks bugs discovered during development and their resolution sta
 
 ## 🐛 Active Bugs
 
-### 1. Field Name Mismatch Between TypeScript and Rust Models
-
-**Status**: 🔧 Partially Fixed
-
-**Description**: 
-- TypeScript interfaces use camelCase field names (e.g., `cost`, `billingCycle`, `domainName`)
-- Rust models use snake_case field names (e.g., `amount`, `periodicity`, `name`)
-- Tauri does NOT automatically convert between naming conventions
-
-**Impact**: 
-- High - Breaks data serialization/deserialization between frontend and backend
-- Causes JSON parsing errors and missing field errors
-
-**Root Cause**:
-- Assumption that Tauri would automatically handle case conversion
-- Inconsistent naming conventions across codebase
-
-**Current Fixes Applied**:
-1. Added `#[serde(alias = "...")]` attributes to Rust models to accept camelCase names
-2. Updated TypeScript `PendingImport` interface to use snake_case field names to match Rust
-
-**Remaining Issues**:
-- `Subscription` and `Domain` TypeScript interfaces still use camelCase
-- Need to verify all Tauri command parameters use correct casing
-- Frontend components may still reference old field names
-
-**Files Affected**:
-- `src/lib/types.ts` - TypeScript type definitions
-- `src-tauri/src/models/mod.rs` - Rust data models
-- `src/components/pending/PendingImportCard.tsx` - Updated to use snake_case
-- `src/components/pending/EditDialog.tsx` - Updated to use snake_case
-
-**Recommended Solution**:
-- Option A: Standardize on snake_case throughout (Rust convention)
-- Option B: Standardize on camelCase throughout (JavaScript convention)
-- Option C: Add comprehensive serde aliases for all fields (current approach)
-- **Recommended**: Option B with serde rename_all at struct level
-
-**Example Fix**:
-```rust
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Subscription {
-    pub id: Option<i64>,
-    pub name: String,
-    pub amount: f64,  // Will serialize as "amount" but accept "cost" as alias
-    // ...
-}
-```
+*No active high-priority bugs at this time.*
 
 ---
+
+## ✅ Resolved Bugs
+
+### 1. Field Name Mismatch Between TypeScript and Rust Models
+
+**Status**: ✅ Fixed
+
+**Description**: 
+- TypeScript interfaces use camelCase field names
+- Rust models use snake_case field names
+- Tauri does NOT automatically convert between naming conventions
+
+**Fix**:
+- Added `#[serde(rename_all = "camelCase")]` to all Rust models in `src-tauri/src/models/mod.rs`.
+- Standardized on camelCase for all TypeScript interfaces in `src/lib/types.ts`.
+- Updated `src/lib/tauri.ts` to use snake_case for `invoke` argument keys to match Rust parameters.
+- Updated frontend components to use camelCase consistently.
 
 ### 2. Incomplete Field Mapping in Mock Data Generator
 
-**Status**: 🔧 Partially Fixed
+**Status**: ✅ Fixed
 
 **Description**:
-- Mock data generator uses TypeScript field names (`cost`, `billingCycle`)
-- Rust expects different field names (`amount`, `periodicity`)
-- Added serde aliases as temporary fix
+- Mock data generator used inconsistent field names.
 
-**Impact**: Medium - Breaks approve workflow for pending imports
-
-**Files Affected**:
-- `src/lib/mockDataGenerator.ts`
-- `src-tauri/src/models/mod.rs`
-
----
+**Fix**:
+- Standardized on camelCase in `mockDataGenerator.ts` and ensured it matches the `PendingImport` interface.
 
 ### 3. Missing Error Handling in Tauri Commands
 
-**Status**: ⚠️ Open
+**Status**: ✅ Fixed
 
 **Description**:
-- Some Tauri commands don't provide detailed error messages
-- Frontend shows generic "Failed to approve import" without context
-- Need better error propagation from Rust to TypeScript
+- Tauri commands provided generic error messages.
 
-**Impact**: Medium - Makes debugging difficult
-
-**Recommended Fix**:
-- Add structured error types in Rust
-- Include detailed error information in responses
-- Log errors with context on both frontend and backend
+**Fix**:
+- Implemented structured error handling with `AppError` enum and `AppResult` type in `src-tauri/src/utils/error.rs`.
+- Updated all Tauri commands to return `AppResult<T>`, providing better error propagation to the frontend.
 
 ---
 
@@ -130,6 +87,29 @@ pub struct Subscription {
 - `src/lib/types.ts` - Changed `extractedData` to `extracted_data`
 - `src/components/pending/PendingImportCard.tsx` - Updated field references
 - `src/components/pending/EditDialog.tsx` - Updated field references
+
+### 4. Tauri 2.x Command Argument Naming Convention
+
+**Status**: ✅ Fixed
+
+**Description**: 
+- Tauri 2.x expects camelCase for command arguments passed from the frontend via `invoke`.
+- Using snake_case (e.g., `test_mode`) resulted in "missing required key" errors.
+
+**Fix**:
+- Updated all `invoke` calls in `src/lib/tauri.ts` to use camelCase for argument keys (e.g., `testMode`).
+
+### 5. Rust Serialization Error for Partial Data
+
+**Status**: ✅ Fixed
+
+**Description**: 
+- The `Subscription` and `Domain` models required fields (like `status`) that were not present in the `extracted_data` JSON stored in the `pending_imports` table.
+- This caused `serde_json::from_str` to fail when approving imports.
+
+**Fix**:
+- Introduced `SubscriptionExtraction` and `DomainExtraction` structs in `src-tauri/src/models/mod.rs` that only contain the fields expected in the extracted JSON.
+- Updated `approve_pending_import` in `src-tauri/src/commands/pending_imports.rs` to use these extraction structs.
 
 ---
 
