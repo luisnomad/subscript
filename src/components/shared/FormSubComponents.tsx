@@ -1,13 +1,15 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { type ReactElement } from 'react';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { CURRENCIES } from "@/lib/constants";
+} from '@/components/ui/select';
+import { CURRENCIES } from '@/lib/constants';
 
 interface CostCurrencyFieldsProps {
   cost: string;
@@ -21,7 +23,7 @@ export function CostCurrencyFields({
   currency,
   onCostChange,
   onCurrencyChange,
-}: CostCurrencyFieldsProps): JSX.Element {
+}: CostCurrencyFieldsProps): ReactElement {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
@@ -31,7 +33,7 @@ export function CostCurrencyFields({
           type="number"
           step="0.01"
           value={cost}
-          onChange={(e) => onCostChange(e.target.value)}
+          onChange={e => onCostChange(e.target.value)}
           placeholder="0.00"
           required
         />
@@ -43,7 +45,7 @@ export function CostCurrencyFields({
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>
           <SelectContent>
-            {CURRENCIES.map((curr) => (
+            {CURRENCIES.map(curr => (
               <SelectItem key={curr} value={curr}>
                 {curr}
               </SelectItem>
@@ -60,7 +62,10 @@ interface NotesFieldProps {
   onNotesChange: (value: string) => void;
 }
 
-export function NotesField({ notes, onNotesChange }: NotesFieldProps): JSX.Element {
+export function NotesField({
+  notes,
+  onNotesChange,
+}: NotesFieldProps): ReactElement {
   return (
     <div className="space-y-2">
       <Label htmlFor="notes">Notes</Label>
@@ -68,7 +73,7 @@ export function NotesField({ notes, onNotesChange }: NotesFieldProps): JSX.Eleme
         id="notes"
         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         value={notes}
-        onChange={(e) => onNotesChange(e.target.value)}
+        onChange={e => onNotesChange(e.target.value)}
         placeholder="Any additional details..."
       />
     </div>
@@ -87,7 +92,7 @@ export function DateFields({
   registrationDate,
   onExpiryDateChange,
   onRegistrationDateChange,
-}: DateFieldsProps): JSX.Element {
+}: DateFieldsProps): ReactElement {
   return (
     <>
       <div className="space-y-2">
@@ -96,7 +101,7 @@ export function DateFields({
           id="expiry-date"
           type="date"
           value={expiryDate}
-          onChange={(e) => onExpiryDateChange(e.target.value)}
+          onChange={e => onExpiryDateChange(e.target.value)}
           required
         />
       </div>
@@ -107,7 +112,7 @@ export function DateFields({
           id="registration-date"
           type="date"
           value={registrationDate}
-          onChange={(e) => onRegistrationDateChange(e.target.value)}
+          onChange={e => onRegistrationDateChange(e.target.value)}
         />
       </div>
     </>
@@ -122,14 +127,14 @@ interface AutoRenewFieldProps {
 export function AutoRenewField({
   autoRenew,
   onAutoRenewChange,
-}: AutoRenewFieldProps): JSX.Element {
+}: AutoRenewFieldProps): ReactElement {
   return (
     <div className="flex items-center space-x-2">
       <input
         id="auto-renew"
         type="checkbox"
         checked={autoRenew}
-        onChange={(e) => onAutoRenewChange(e.target.checked)}
+        onChange={e => onAutoRenewChange(e.target.checked)}
         className="h-4 w-4"
       />
       <Label htmlFor="auto-renew">Auto-renew enabled</Label>

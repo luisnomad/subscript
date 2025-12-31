@@ -1,10 +1,16 @@
-import { useState } from "react";
+import {
+  type Dispatch,
+  type FormEvent,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from 'react';
 
-import { Plus } from "lucide-react";
+import { Plus } from 'lucide-react';
 
-import { DomainFormFields } from "@/components/shared/DomainFormFields";
-import { NotesField } from "@/components/shared/FormSubComponents";
-import { Button } from "@/components/ui/button";
+import { DomainFormFields } from '@/components/shared/DomainFormFields';
+import { NotesField } from '@/components/shared/FormSubComponents';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,10 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { createDomain } from "@/lib/tauri";
-import type { DomainStatus } from "@/lib/types";
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { createDomain } from '@/lib/tauri';
+import type { DomainStatus } from '@/lib/types';
 
 interface AddDomainDialogProps {
   onSuccess?: () => void;
@@ -37,25 +43,31 @@ interface AddDomainFormState {
 
 interface AddDomainFormReturn {
   state: AddDomainFormState;
-  setState: React.Dispatch<React.SetStateAction<AddDomainFormState>>;
+  setState: Dispatch<SetStateAction<AddDomainFormState>>;
   isLoading: boolean;
-  handleSubmit: (e: React.FormEvent, setIsOpen: (open: boolean) => void) => Promise<void>;
+  handleSubmit: (
+    e: FormEvent,
+    setIsOpen: (open: boolean) => void
+  ) => Promise<void>;
   resetForm: () => void;
 }
 
 const INITIAL_STATE: AddDomainFormState = {
-  domainName: "",
-  registrar: "",
-  cost: "",
-  currency: "USD",
-  expiryDate: "",
-  registrationDate: "",
+  domainName: '',
+  registrar: '',
+  cost: '',
+  currency: 'USD',
+  expiryDate: '',
+  registrationDate: '',
   isAutoRenew: true,
-  status: "active",
-  notes: "",
+  status: 'active',
+  notes: '',
 };
 
-function useAddDomainForm(onSuccess?: () => void, testMode = false): AddDomainFormReturn {
+function useAddDomainForm(
+  onSuccess?: () => void,
+  testMode = false
+): AddDomainFormReturn {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState<AddDomainFormState>(INITIAL_STATE);
@@ -65,7 +77,7 @@ function useAddDomainForm(onSuccess?: () => void, testMode = false): AddDomainFo
   }
 
   async function handleSubmit(
-    e: React.FormEvent,
+    e: FormEvent,
     setIsOpen: (open: boolean) => void
   ): Promise<void> {
     e.preventDefault();
@@ -87,13 +99,17 @@ function useAddDomainForm(onSuccess?: () => void, testMode = false): AddDomainFo
         testMode
       );
 
-      toast({ title: "Success", description: "Domain added successfully." });
+      toast({ title: 'Success', description: 'Domain added successfully.' });
       setIsOpen(false);
       resetForm();
       onSuccess?.();
     } catch (error) {
-      console.error("Failed to create domain:", error);
-      toast({ title: "Error", description: "Failed to add domain.", variant: "destructive" });
+      console.error('Failed to create domain:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add domain.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -105,13 +121,17 @@ function useAddDomainForm(onSuccess?: () => void, testMode = false): AddDomainFo
 export function AddDomainDialog({
   onSuccess,
   testMode = false,
-}: AddDomainDialogProps): JSX.Element {
+}: AddDomainDialogProps): ReactElement {
   const [isOpen, setIsOpen] = useState(false);
-  const { state, setState, isLoading, handleSubmit } = useAddDomainForm(onSuccess, testMode);
+  const { state, setState, isLoading, handleSubmit } = useAddDomainForm(
+    onSuccess,
+    testMode
+  );
 
-  const updateField = <K extends keyof AddDomainFormState>(key: K, value: AddDomainFormState[K]): void => {
-    setState((prev) => ({ ...prev, [key]: value }));
-  };
+  const updateField = <K extends keyof AddDomainFormState>(
+    key: K,
+    value: AddDomainFormState[K]
+  ): void => setState(prev => ({ ...prev, [key]: value }));
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -122,14 +142,23 @@ export function AddDomainDialog({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={(e) => { void handleSubmit(e, setIsOpen); }}>
+        <form
+          onSubmit={e => {
+            void handleSubmit(e, setIsOpen);
+          }}
+        >
           <AddDomainDialogContent state={state} updateField={updateField} />
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Domain"}
+              {isLoading ? 'Adding...' : 'Add Domain'}
             </Button>
           </DialogFooter>
         </form>
@@ -140,15 +169,23 @@ export function AddDomainDialog({
 
 interface AddDomainDialogContentProps {
   state: AddDomainFormState;
-  updateField: <K extends keyof AddDomainFormState>(key: K, value: AddDomainFormState[K]) => void;
+  updateField: <K extends keyof AddDomainFormState>(
+    key: K,
+    value: AddDomainFormState[K]
+  ) => void;
 }
 
-function AddDomainDialogContent({ state, updateField }: AddDomainDialogContentProps): JSX.Element {
+function AddDomainDialogContent({
+  state,
+  updateField,
+}: AddDomainDialogContentProps): ReactElement {
   return (
     <>
       <DialogHeader>
         <DialogTitle>Add New Domain</DialogTitle>
-        <DialogDescription>Manually add a domain to your tracking list.</DialogDescription>
+        <DialogDescription>
+          Manually add a domain to your tracking list.
+        </DialogDescription>
       </DialogHeader>
 
       <div className="py-4">
@@ -160,16 +197,19 @@ function AddDomainDialogContent({ state, updateField }: AddDomainDialogContentPr
           expiryDate={state.expiryDate}
           registrationDate={state.registrationDate}
           autoRenew={state.isAutoRenew}
-          onDomainNameChange={(v) => updateField("domainName", v)}
-          onRegistrarChange={(v) => updateField("registrar", v)}
-          onCostChange={(v) => updateField("cost", v)}
-          onCurrencyChange={(v) => updateField("currency", v)}
-          onExpiryDateChange={(v) => updateField("expiryDate", v)}
-          onRegistrationDateChange={(v) => updateField("registrationDate", v)}
-          onAutoRenewChange={(v) => updateField("isAutoRenew", v)}
+          onDomainNameChange={(v: string) => updateField('domainName', v)}
+          onRegistrarChange={(v: string) => updateField('registrar', v)}
+          onCostChange={(v: string) => updateField('cost', v)}
+          onCurrencyChange={(v: string) => updateField('currency', v)}
+          onExpiryDateChange={(v: string) => updateField('expiryDate', v)}
+          onRegistrationDateChange={(v: string) => updateField('registrationDate', v)}
+          onAutoRenewChange={(v: boolean) => updateField('isAutoRenew', v)}
         />
         <div className="mt-4">
-          <NotesField notes={state.notes} onNotesChange={(v) => updateField("notes", v)} />
+          <NotesField
+            notes={state.notes}
+            onNotesChange={v => updateField('notes', v)}
+          />
         </div>
       </div>
     </>

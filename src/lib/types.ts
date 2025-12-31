@@ -7,8 +7,8 @@
 // Subscription Types
 // ============================================================================
 
-export type BillingCycle = "monthly" | "yearly" | "one-time";
-export type SubscriptionStatus = "active" | "cancelled" | "paused";
+export type BillingCycle = 'monthly' | 'yearly' | 'one-time';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'paused';
 
 export interface Subscription {
   id: number;
@@ -28,7 +28,7 @@ export interface Subscription {
 // Domain Types
 // ============================================================================
 
-export type DomainStatus = "active" | "expired" | "pending-renewal";
+export type DomainStatus = 'active' | 'expired' | 'pending-renewal';
 
 export interface Domain {
   id: number;
@@ -49,7 +49,7 @@ export interface Domain {
 // Pending Import Types
 // ============================================================================
 
-export type ImportClassification = "subscription" | "domain" | "junk";
+export type ImportClassification = 'subscription' | 'domain' | 'junk';
 
 export interface PendingImport {
   id: number;
@@ -128,7 +128,7 @@ export interface FormFieldError {
 
 export interface ToastMessage {
   id: string;
-  type: "success" | "error" | "info" | "warning";
+  type: 'success' | 'error' | 'info' | 'warning';
   message: string;
   duration?: number;
 }

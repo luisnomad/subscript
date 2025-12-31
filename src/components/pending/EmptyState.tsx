@@ -1,15 +1,17 @@
-import React from "react";
+import { type ReactElement } from 'react';
 
-import { CheckCircle2, Inbox } from "lucide-react";
+import { CheckCircle2, Inbox } from 'lucide-react';
 
-import { CreatePendingImportDialog } from "./CreatePendingImportDialog";
-import { GenerateMockDataButton } from "./GenerateMockDataButton";
+import { CreatePendingImportDialog } from './CreatePendingImportDialog';
+import { GenerateMockDataButton } from './GenerateMockDataButton';
 
 interface EmptyStateProps {
   onCreateTest?: () => void;
 }
 
-export function EmptyState({ onCreateTest }: EmptyStateProps): React.ReactElement {
+export function EmptyState({
+  onCreateTest,
+}: EmptyStateProps): ReactElement {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
       <div className="text-center">
@@ -30,7 +32,10 @@ export function EmptyState({ onCreateTest }: EmptyStateProps): React.ReactElemen
         </div>
         <div className="mt-8 flex items-center justify-center gap-3">
           <GenerateMockDataButton onSuccess={onCreateTest} testMode={false} />
-          <CreatePendingImportDialog onSuccess={onCreateTest} testMode={false} />
+          <CreatePendingImportDialog
+            onSuccess={onCreateTest}
+            testMode={false}
+          />
         </div>
       </div>
     </div>

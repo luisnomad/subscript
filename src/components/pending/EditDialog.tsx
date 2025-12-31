@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { type ReactElement, useState } from 'react';
 
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
 
 import {
   Dialog,
@@ -8,15 +8,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type {
   PendingImport,
   SubscriptionExtraction,
   DomainExtraction,
   BillingCycle,
-} from "@/lib/types";
+} from '@/lib/types';
 
 interface EditDialogProps {
   importItem: PendingImport;
@@ -28,10 +34,10 @@ export function EditDialog({
   importItem,
   onSave,
   onCancel,
-}: EditDialogProps): React.ReactElement {
-  const extractedData = JSON.parse(
-    importItem.extractedData
-  ) as SubscriptionExtraction | DomainExtraction;
+}: EditDialogProps): ReactElement {
+  const extractedData = JSON.parse(importItem.extractedData) as
+    | SubscriptionExtraction
+    | DomainExtraction;
 
   const [formData, setFormData] = useState(extractedData);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,12 +53,15 @@ export function EditDialog({
       <DialogContent className="border-2 border-[#2a2a2a] bg-white sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl font-bold text-[#2a2a2a]">
-            Edit {importItem.classification === "subscription" ? "Subscription" : "Domain"}
+            Edit{' '}
+            {importItem.classification === 'subscription'
+              ? 'Subscription'
+              : 'Domain'}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {importItem.classification === "subscription" ? (
+          {importItem.classification === 'subscription' ? (
             <SubscriptionForm
               data={formData as SubscriptionExtraction}
               onChange={setFormData}
@@ -75,11 +84,13 @@ export function EditDialog({
             Cancel
           </button>
           <button
-            onClick={() => {void handleSave();}}
+            onClick={() => {
+              void handleSave();
+            }}
             disabled={isSaving}
             className="border-2 border-[#2d5f4f] bg-[#2d5f4f] px-4 py-2 font-mono text-sm font-medium text-white transition-all hover:bg-[#2d5f4f]/90 disabled:opacity-50"
           >
-            {isSaving ? "Saving..." : "Save & Approve"}
+            {isSaving ? 'Saving...' : 'Save & Approve'}
           </button>
         </DialogFooter>
       </DialogContent>
@@ -102,7 +113,7 @@ function SubscriptionForm({
         </label>
         <Input
           value={data.name}
-          onChange={(e) => onChange({ ...data, name: e.target.value })}
+          onChange={e => onChange({ ...data, name: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>
@@ -115,7 +126,7 @@ function SubscriptionForm({
             type="number"
             step="0.01"
             value={data.cost}
-            onChange={(e) =>
+            onChange={e =>
               onChange({ ...data, cost: parseFloat(e.target.value) })
             }
             className="border-2 border-[#e5e5e5] font-mono"
@@ -127,7 +138,7 @@ function SubscriptionForm({
           </label>
           <Input
             value={data.currency}
-            onChange={(e) => onChange({ ...data, currency: e.target.value })}
+            onChange={e => onChange({ ...data, currency: e.target.value })}
             className="border-2 border-[#e5e5e5] font-mono"
           />
         </div>
@@ -138,7 +149,7 @@ function SubscriptionForm({
         </label>
         <Select
           value={data.billingCycle}
-          onValueChange={(value) =>
+          onValueChange={value =>
             onChange({ ...data, billingCycle: value as BillingCycle })
           }
         >
@@ -157,8 +168,10 @@ function SubscriptionForm({
           Category (optional)
         </label>
         <Input
-          value={data.category ?? ""}
-          onChange={(e) => onChange({ ...data, category: e.target.value || undefined })}
+          value={data.category ?? ''}
+          onChange={e =>
+            onChange({ ...data, category: e.target.value || undefined })
+          }
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>
@@ -181,7 +194,7 @@ function DomainForm({
         </label>
         <Input
           value={data.domainName}
-          onChange={(e) => onChange({ ...data, domainName: e.target.value })}
+          onChange={e => onChange({ ...data, domainName: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>
@@ -191,7 +204,7 @@ function DomainForm({
         </label>
         <Input
           value={data.registrar}
-          onChange={(e) => onChange({ ...data, registrar: e.target.value })}
+          onChange={e => onChange({ ...data, registrar: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>
@@ -204,7 +217,7 @@ function DomainForm({
             type="number"
             step="0.01"
             value={data.cost}
-            onChange={(e) =>
+            onChange={e =>
               onChange({ ...data, cost: parseFloat(e.target.value) })
             }
             className="border-2 border-[#e5e5e5] font-mono"
@@ -216,7 +229,7 @@ function DomainForm({
           </label>
           <Input
             value={data.currency}
-            onChange={(e) => onChange({ ...data, currency: e.target.value })}
+            onChange={e => onChange({ ...data, currency: e.target.value })}
             className="border-2 border-[#e5e5e5] font-mono"
           />
         </div>
@@ -228,7 +241,7 @@ function DomainForm({
         <Input
           type="date"
           value={data.expiryDate}
-          onChange={(e) => onChange({ ...data, expiryDate: e.target.value })}
+          onChange={e => onChange({ ...data, expiryDate: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>

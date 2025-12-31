@@ -1,11 +1,13 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { type ReactElement } from 'react';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import {
   AutoRenewField,
   CostCurrencyFields,
   DateFields,
-} from "./FormSubComponents";
+} from './FormSubComponents';
 
 interface DomainFormFieldsProps {
   domainName: string;
@@ -39,7 +41,7 @@ export function DomainFormFields({
   onExpiryDateChange,
   onRegistrationDateChange,
   onAutoRenewChange,
-}: DomainFormFieldsProps): JSX.Element {
+}: DomainFormFieldsProps): ReactElement {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Domain Data</h3>
@@ -85,7 +87,7 @@ function BasicInfoFields({
   registrar,
   onDomainNameChange,
   onRegistrarChange,
-}: BasicInfoFieldsProps): JSX.Element {
+}: BasicInfoFieldsProps): ReactElement {
   return (
     <>
       <div className="space-y-2">
@@ -93,7 +95,7 @@ function BasicInfoFields({
         <Input
           id="domain-name"
           value={domainName}
-          onChange={(e) => onDomainNameChange(e.target.value)}
+          onChange={e => onDomainNameChange(e.target.value)}
           placeholder="example.com"
           required
         />
@@ -104,7 +106,7 @@ function BasicInfoFields({
         <Input
           id="registrar"
           value={registrar}
-          onChange={(e) => onRegistrarChange(e.target.value)}
+          onChange={e => onRegistrarChange(e.target.value)}
           placeholder="Namecheap"
         />
       </div>

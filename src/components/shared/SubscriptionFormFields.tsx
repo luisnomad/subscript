@@ -1,16 +1,18 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { type ReactElement } from 'react';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { BILLING_CYCLES } from "@/lib/constants";
-import type { BillingCycle } from "@/lib/types";
+} from '@/components/ui/select';
+import { BILLING_CYCLES } from '@/lib/constants';
+import type { BillingCycle } from '@/lib/types';
 
-import { CostCurrencyFields } from "./FormSubComponents";
+import { CostCurrencyFields } from './FormSubComponents';
 
 interface SubscriptionFormFieldsProps {
   name: string;
@@ -40,7 +42,7 @@ export function SubscriptionFormFields({
   onBillingCycleChange,
   onNextDateChange,
   onCategoryChange,
-}: SubscriptionFormFieldsProps): JSX.Element {
+}: SubscriptionFormFieldsProps): ReactElement {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">Subscription Data</h3>
@@ -50,7 +52,7 @@ export function SubscriptionFormFields({
         <Input
           id="sub-name"
           value={name}
-          onChange={(e) => onNameChange(e.target.value)}
+          onChange={e => onNameChange(e.target.value)}
           placeholder="Netflix"
           required
         />
@@ -90,7 +92,7 @@ function DateAndCategoryFields({
   category,
   onNextDateChange,
   onCategoryChange,
-}: DateAndCategoryFieldsProps): JSX.Element {
+}: DateAndCategoryFieldsProps): ReactElement {
   return (
     <>
       <div className="space-y-2">
@@ -99,7 +101,7 @@ function DateAndCategoryFields({
           id="next-date"
           type="date"
           value={nextDate}
-          onChange={(e) => onNextDateChange(e.target.value)}
+          onChange={e => onNextDateChange(e.target.value)}
         />
       </div>
 
@@ -108,7 +110,7 @@ function DateAndCategoryFields({
         <Input
           id="category"
           value={category}
-          onChange={(e) => onCategoryChange(e.target.value)}
+          onChange={e => onCategoryChange(e.target.value)}
           placeholder="Entertainment"
         />
       </div>
@@ -124,7 +126,7 @@ interface BillingCycleFieldProps {
 function BillingCycleField({
   billingCycle,
   onBillingCycleChange,
-}: BillingCycleFieldProps): JSX.Element {
+}: BillingCycleFieldProps): ReactElement {
   return (
     <div className="space-y-2">
       <Label htmlFor="billing-cycle">Billing Cycle</Label>
@@ -133,7 +135,7 @@ function BillingCycleField({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {BILLING_CYCLES.map((cycle) => (
+          {BILLING_CYCLES.map(cycle => (
             <SelectItem key={cycle} value={cycle}>
               {cycle.charAt(0).toUpperCase() + cycle.slice(1)}
             </SelectItem>

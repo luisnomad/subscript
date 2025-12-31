@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { type ReactElement, useState } from 'react';
 
-import { Check, X, XCircle } from "lucide-react";
+import { Check, X, XCircle } from 'lucide-react';
 
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
 import {
   batchApprovePendingImports,
   batchRejectPendingImports,
-} from "@/lib/tauri";
+} from '@/lib/tauri';
 
 interface BatchActionsBarProps {
   selectedIds: number[];
@@ -18,7 +18,7 @@ export function BatchActionsBar({
   selectedIds,
   onDeselectAll,
   onBatchRemove,
-}: BatchActionsBarProps): React.ReactElement {
+}: BatchActionsBarProps): ReactElement {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const { toast } = useToast();
@@ -28,15 +28,15 @@ export function BatchActionsBar({
       setIsApproving(true);
       await batchApprovePendingImports(selectedIds, false);
       toast({
-        title: "Batch Approved",
+        title: 'Batch Approved',
         description: `${selectedIds.length} items approved successfully`,
       });
       onBatchRemove(selectedIds);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to approve items",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to approve items',
+        variant: 'destructive',
       });
     } finally {
       setIsApproving(false);
@@ -48,15 +48,15 @@ export function BatchActionsBar({
       setIsRejecting(true);
       await batchRejectPendingImports(selectedIds, false);
       toast({
-        title: "Batch Rejected",
+        title: 'Batch Rejected',
         description: `${selectedIds.length} items removed from queue`,
       });
       onBatchRemove(selectedIds);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to reject items",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to reject items',
+        variant: 'destructive',
       });
     } finally {
       setIsRejecting(false);
@@ -69,7 +69,8 @@ export function BatchActionsBar({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <p className="font-mono text-sm font-medium text-[#2a2a2a]">
-              {selectedIds.length} item{selectedIds.length !== 1 ? "s" : ""} selected
+              {selectedIds.length} item{selectedIds.length !== 1 ? 's' : ''}{' '}
+              selected
             </p>
             <button
               onClick={onDeselectAll}
@@ -81,7 +82,9 @@ export function BatchActionsBar({
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => {void handleBatchApprove();}}
+              onClick={() => {
+                void handleBatchApprove();
+              }}
               disabled={isApproving || isRejecting}
               className="flex items-center gap-2 border-2 border-[#2d5f4f] bg-[#2d5f4f] px-4 py-2 font-mono text-sm font-medium text-white transition-all hover:bg-[#2d5f4f]/90 disabled:opacity-50"
             >
@@ -89,7 +92,9 @@ export function BatchActionsBar({
               Approve All
             </button>
             <button
-              onClick={() => {void handleBatchReject();}}
+              onClick={() => {
+                void handleBatchReject();
+              }}
               disabled={isApproving || isRejecting}
               className="flex items-center gap-2 border-2 border-[#c45a5a] bg-white px-4 py-2 font-mono text-sm font-medium text-[#c45a5a] transition-all hover:bg-[#c45a5a] hover:text-white disabled:opacity-50"
             >

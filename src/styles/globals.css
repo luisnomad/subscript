@@ -57,13 +57,21 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family:
+      'DM Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family:
+      'DM Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
   }
 
   .font-mono {
@@ -74,8 +82,30 @@
   .receipt-card {
     position: relative;
     background:
-      linear-gradient(0deg, transparent 24%, rgba(229, 229, 229, .15) 25%, rgba(229, 229, 229, .15) 26%, transparent 27%, transparent 74%, rgba(229, 229, 229, .15) 75%, rgba(229, 229, 229, .15) 76%, transparent 77%, transparent),
-      linear-gradient(90deg, transparent 24%, rgba(229, 229, 229, .15) 25%, rgba(229, 229, 229, .15) 26%, transparent 27%, transparent 74%, rgba(229, 229, 229, .15) 75%, rgba(229, 229, 229, .15) 76%, transparent 77%, transparent);
+      linear-gradient(
+        0deg,
+        transparent 24%,
+        rgba(229, 229, 229, 0.15) 25%,
+        rgba(229, 229, 229, 0.15) 26%,
+        transparent 27%,
+        transparent 74%,
+        rgba(229, 229, 229, 0.15) 75%,
+        rgba(229, 229, 229, 0.15) 76%,
+        transparent 77%,
+        transparent
+      ),
+      linear-gradient(
+        90deg,
+        transparent 24%,
+        rgba(229, 229, 229, 0.15) 25%,
+        rgba(229, 229, 229, 0.15) 26%,
+        transparent 27%,
+        transparent 74%,
+        rgba(229, 229, 229, 0.15) 75%,
+        rgba(229, 229, 229, 0.15) 76%,
+        transparent 77%,
+        transparent
+      );
     background-size: 50px 50px;
     background-color: white;
   }
@@ -87,8 +117,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(42, 42, 42, 0.02) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(42, 42, 42, 0.02) 1px,
+      transparent 0
+    );
     background-size: 20px 20px;
     pointer-events: none;
   }
@@ -117,7 +150,7 @@
   }
 
   /* Progress bar custom color */
-  [data-state="loading"] > div {
+  [data-state='loading'] > div {
     background-color: var(--progress-color, #2d5f4f);
   }
 }

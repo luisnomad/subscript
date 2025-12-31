@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, type ReactElement } from 'react';
 
-import { Sparkles } from "lucide-react";
+import { Sparkles } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,18 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { generateMultipleMockImports } from "@/lib/mockDataGenerator";
-import { createPendingImport } from "@/lib/tauri";
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { generateMultipleMockImports } from '@/lib/mockDataGenerator';
+import { createPendingImport } from '@/lib/tauri';
 
 interface GenerateMockDataButtonProps {
   onSuccess?: () => void;
@@ -37,11 +37,11 @@ const MOCK_COUNTS = [1, COUNT_THREE, COUNT_FIVE, COUNT_TEN];
 export function GenerateMockDataButton({
   onSuccess,
   testMode = false,
-}: GenerateMockDataButtonProps): JSX.Element {
+}: GenerateMockDataButtonProps): ReactElement {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [count, setCount] = useState("5");
+  const [count, setCount] = useState('5');
 
   async function handleGenerate(): Promise<void> {
     setIsLoading(true);
@@ -62,9 +62,9 @@ export function GenerateMockDataButton({
       }
 
       toast({
-        title: "Success",
+        title: 'Success',
         description: `Generated ${mockData.length} mock pending ${
-          mockData.length === 1 ? "import" : "imports"
+          mockData.length === 1 ? 'import' : 'imports'
         }`,
       });
 
@@ -72,9 +72,9 @@ export function GenerateMockDataButton({
       onSuccess?.();
     } catch (error) {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to generate mock data: ${String(error)}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -114,9 +114,9 @@ export function GenerateMockDataButton({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {MOCK_COUNTS.map((num) => (
+                {MOCK_COUNTS.map(num => (
                   <SelectItem key={num} value={String(num)}>
-                    {num} {num === 1 ? "import" : "imports"}
+                    {num} {num === 1 ? 'import' : 'imports'}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -136,7 +136,7 @@ export function GenerateMockDataButton({
             Cancel
           </Button>
           <Button onClick={handleGenerateClick} disabled={isLoading}>
-            {isLoading ? "Generating..." : "Generate"}
+            {isLoading ? 'Generating...' : 'Generate'}
           </Button>
         </DialogFooter>
       </DialogContent>

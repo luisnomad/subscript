@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { useToast } from "@/hooks/use-toast";
-import { createPendingImport } from "@/lib/tauri";
+import { useToast } from '@/hooks/use-toast';
+import { createPendingImport } from '@/lib/tauri';
 import type {
   BillingCycle,
   DomainExtraction,
   SubscriptionExtraction,
-} from "@/lib/types";
+} from '@/lib/types';
 
 const DEFAULT_CONFIDENCE = 0.85;
 
@@ -32,23 +32,23 @@ interface FormState {
 }
 
 const INITIAL_STATE: FormState = {
-  emailSubject: "",
-  emailFrom: "",
-  emailDate: new Date().toISOString().split("T")[0] ?? "",
-  classification: "subscription",
+  emailSubject: '',
+  emailFrom: '',
+  emailDate: new Date().toISOString().split('T')[0] ?? '',
+  classification: 'subscription',
   confidence: DEFAULT_CONFIDENCE,
-  subName: "",
-  subCost: "",
-  subCurrency: "USD",
-  subBillingCycle: "monthly",
-  subNextDate: "",
-  subCategory: "",
-  domainName: "",
-  domainRegistrar: "",
-  domainCost: "",
-  domainCurrency: "USD",
-  domainExpiryDate: "",
-  domainRegistrationDate: "",
+  subName: '',
+  subCost: '',
+  subCurrency: 'USD',
+  subBillingCycle: 'monthly',
+  subNextDate: '',
+  subCategory: '',
+  domainName: '',
+  domainRegistrar: '',
+  domainCost: '',
+  domainCurrency: 'USD',
+  domainExpiryDate: '',
+  domainRegistrationDate: '',
   isDomainAutoRenew: true,
 };
 
@@ -56,7 +56,10 @@ export interface CreatePendingImportFormReturn {
   state: FormState;
   updateField: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
   isLoading: boolean;
-  handleSubmit: (e: React.FormEvent, setIsOpen: (open: boolean) => void) => void;
+  handleSubmit: (
+    e: React.FormEvent,
+    setIsOpen: (open: boolean) => void
+  ) => void;
 }
 
 function buildSubscriptionData(state: FormState): SubscriptionExtraction {
@@ -77,7 +80,9 @@ function buildDomainData(state: FormState): DomainExtraction {
     cost: state.domainCost ? parseFloat(state.domainCost) : 0,
     currency: state.domainCurrency,
     expiryDate: state.domainExpiryDate,
-    ...(state.domainRegistrationDate && { registrationDate: state.domainRegistrationDate }),
+    ...(state.domainRegistrationDate && {
+      registrationDate: state.domainRegistrationDate,
+    }),
     autoRenew: state.isDomainAutoRenew,
   };
 }
@@ -88,7 +93,7 @@ interface SubmitImportParams {
   testMode: boolean;
   setIsLoading: (loading: boolean) => void;
   setIsOpen: (open: boolean) => void;
-  toast: ReturnType<typeof useToast>["toast"];
+  toast: ReturnType<typeof useToast>['toast'];
   onSuccess?: () => void;
   resetState?: () => void;
 }
@@ -114,28 +119,56 @@ async function performSubmitImport({
       confidence: state.confidence,
       testMode,
     });
-    toast({ title: "Success", description: "Test pending import created successfully" });
+    toast({
+      title: 'Success',
+      description: 'Test pending import created successfully',
+    });
     resetState?.();
     setIsOpen(false);
     onSuccess?.();
   } catch (error) {
-    toast({ title: "Error", description: `Failed to create pending import: ${String(error)}`, variant: "destructive" });
+    toast({
+      title: 'Error',
+      description: `Failed to create pending import: ${String(error)}`,
+      variant: 'destructive',
+    });
   } finally {
     setIsLoading(false);
   }
 }
 
-function validateForm(state: FormState, toast: ReturnType<typeof useToast>["toast"]): boolean {
+function validateForm(
+  state: FormState,
+  toast: ReturnType<typeof useToast>['toast']
+): boolean {
   if (!state.emailSubject || !state.emailFrom || !state.emailDate) {
-    toast({ title: "Validation Error", description: "Please fill in all email metadata fields", variant: "destructive" });
+    toast({
+      title: 'Validation Error',
+      description: 'Please fill in all email metadata fields',
+      variant: 'destructive',
+    });
     return false;
   }
-  if (state.classification === "subscription" && (!state.subName || !state.subCost)) {
-    toast({ title: "Validation Error", description: "Please fill in subscription name and cost", variant: "destructive" });
+  if (
+    state.classification === 'subscription' &&
+    (!state.subName || !state.subCost)
+  ) {
+    toast({
+      title: 'Validation Error',
+      description: 'Please fill in subscription name and cost',
+      variant: 'destructive',
+    });
     return false;
   }
-  if (state.classification === "domain" && (!state.domainName || !state.domainExpiryDate)) {
-    toast({ title: "Validation Error", description: "Please fill in domain name and expiry date", variant: "destructive" });
+  if (
+    state.classification === 'domain' &&
+    (!state.domainName || !state.domainExpiryDate)
+  ) {
+    toast({
+      title: 'Validation Error',
+      description: 'Please fill in domain name and expiry date',
+      variant: 'destructive',
+    });
     return false;
   }
   return true;
@@ -149,19 +182,26 @@ export function useCreatePendingImportForm(
   const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState<FormState>(INITIAL_STATE);
 
-  const updateField = <K extends keyof FormState>(key: K, value: FormState[K]): void => {
-    setState((prev) => ({ ...prev, [key]: value }));
+  const updateField = <K extends keyof FormState>(
+    key: K,
+    value: FormState[K]
+  ): void => {
+    setState(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent, setIsOpen: (open: boolean) => void): void => {
+  const handleSubmit = (
+    e: React.FormEvent,
+    setIsOpen: (open: boolean) => void
+  ): void => {
     e.preventDefault();
     if (!validateForm(state, toast)) {
       return;
     }
 
-    const extractedData = state.classification === "subscription"
-      ? buildSubscriptionData(state)
-      : buildDomainData(state);
+    const extractedData =
+      state.classification === 'subscription'
+        ? buildSubscriptionData(state)
+        : buildDomainData(state);
 
     void performSubmitImport({
       state,

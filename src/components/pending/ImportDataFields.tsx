@@ -1,13 +1,8 @@
-import React from "react";
+import { type ReactElement } from 'react';
 
-import {
-  Calendar,
-  DollarSign,
-  RefreshCw,
-  Globe,
-} from "lucide-react";
+import { Calendar, DollarSign, RefreshCw, Globe } from 'lucide-react';
 
-import type { SubscriptionExtraction, DomainExtraction } from "@/lib/types";
+import type { SubscriptionExtraction, DomainExtraction } from '@/lib/types';
 
 const COST_DECIMAL_PLACES = 2;
 
@@ -17,7 +12,7 @@ interface SubscriptionFieldsProps {
 
 export function SubscriptionFields({
   data,
-}: SubscriptionFieldsProps): React.ReactElement {
+}: SubscriptionFieldsProps): ReactElement {
   return (
     <>
       <div className="flex items-baseline justify-between">
@@ -34,9 +29,7 @@ export function SubscriptionFields({
       </div>
       <div className="flex items-center gap-2 text-sm">
         <RefreshCw className="h-3.5 w-3.5 text-[#6b6b6b]" />
-        <p className="font-mono text-[#6b6b6b]">
-          Billed {data.billingCycle}
-        </p>
+        <p className="font-mono text-[#6b6b6b]">Billed {data.billingCycle}</p>
       </div>
       {data.nextBillingDate && (
         <div className="flex items-center gap-2 text-sm">
@@ -59,9 +52,7 @@ interface DomainFieldsProps {
   data: DomainExtraction;
 }
 
-export function DomainFields({
-  data,
-}: DomainFieldsProps): React.ReactElement {
+export function DomainFields({ data }: DomainFieldsProps): ReactElement {
   return (
     <>
       <div className="flex items-center gap-2">
@@ -88,7 +79,7 @@ export function DomainFields({
       </div>
       {data.autoRenew !== undefined && (
         <p className="font-mono text-xs text-[#6b6b6b]">
-          Auto-renew: {data.autoRenew ? "Yes" : "No"}
+          Auto-renew: {data.autoRenew ? 'Yes' : 'No'}
         </p>
       )}
     </>

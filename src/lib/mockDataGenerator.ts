@@ -3,19 +3,17 @@
  * Generates realistic subscription and domain data for testing the pending import workflow
  */
 
-import { MOCK_DOMAINS, MOCK_SUBSCRIPTIONS } from "./mockData";
+import { MOCK_DOMAINS, MOCK_SUBSCRIPTIONS } from './mockData';
 
-import type {
-  DomainExtraction,
-  SubscriptionExtraction,
-} from "./types";
+import type { DomainExtraction, SubscriptionExtraction } from './types';
 
 const DAYS_IN_MONTH = 30;
 const HOURS_IN_DAY = 24;
 const MINUTES_IN_HOUR = 60;
 const SECONDS_IN_MINUTE = 60;
 const MS_IN_SECOND = 1000;
-const MS_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MS_IN_SECOND;
+const MS_IN_DAY =
+  HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MS_IN_SECOND;
 
 const FUTURE_DATE_MIN_DAYS = 30;
 const FUTURE_DATE_RANGE_DAYS = 60;
@@ -43,7 +41,7 @@ function getRandomItem<T>(array: readonly T[]): T {
   const randomIndex = Math.floor(Math.random() * array.length);
   const item = array[randomIndex];
   if (item === undefined) {
-    throw new Error("Array is empty");
+    throw new Error('Array is empty');
   }
   return item;
 }
@@ -55,8 +53,8 @@ function getRandomRecentDate(): string {
   const now = new Date();
   const daysAgo = Math.floor(Math.random() * DAYS_IN_MONTH);
   const date = new Date(now.getTime() - daysAgo * MS_IN_DAY);
-  const dateStr = date.toISOString().split("T")[0];
-  return dateStr ?? "";
+  const dateStr = date.toISOString().split('T')[0];
+  return dateStr ?? '';
 }
 
 /**
@@ -64,10 +62,11 @@ function getRandomRecentDate(): string {
  */
 function getRandomFutureDate(): string {
   const now = new Date();
-  const daysFromNow = FUTURE_DATE_MIN_DAYS + Math.floor(Math.random() * FUTURE_DATE_RANGE_DAYS);
+  const daysFromNow =
+    FUTURE_DATE_MIN_DAYS + Math.floor(Math.random() * FUTURE_DATE_RANGE_DAYS);
   const date = new Date(now.getTime() + daysFromNow * MS_IN_DAY);
-  const dateStr = date.toISOString().split("T")[0];
-  return dateStr ?? "";
+  const dateStr = date.toISOString().split('T')[0];
+  return dateStr ?? '';
 }
 
 /**
@@ -75,10 +74,12 @@ function getRandomFutureDate(): string {
  */
 function getRandomDomainExpiryDate(): string {
   const now = new Date();
-  const daysFromNow = DOMAIN_EXPIRY_MIN_DAYS + Math.floor(Math.random() * DOMAIN_EXPIRY_RANGE_DAYS);
+  const daysFromNow =
+    DOMAIN_EXPIRY_MIN_DAYS +
+    Math.floor(Math.random() * DOMAIN_EXPIRY_RANGE_DAYS);
   const date = new Date(now.getTime() + daysFromNow * MS_IN_DAY);
-  const dateStr = date.toISOString().split("T")[0];
-  return dateStr ?? "";
+  const dateStr = date.toISOString().split('T')[0];
+  return dateStr ?? '';
 }
 
 /**
@@ -162,7 +163,7 @@ export function generateMockPendingImport(): {
   emailSubject: string;
   emailFrom: string;
   emailDate: string;
-  classification: "subscription" | "domain";
+  classification: 'subscription' | 'domain';
   extractedData: string;
   confidence: number;
 } {
@@ -174,7 +175,7 @@ export function generateMockPendingImport(): {
       emailSubject: mock.emailSubject,
       emailFrom: mock.emailFrom,
       emailDate: mock.emailDate,
-      classification: "subscription",
+      classification: 'subscription',
       extractedData: JSON.stringify(mock.extractedData),
       confidence: mock.confidence,
     };
@@ -185,7 +186,7 @@ export function generateMockPendingImport(): {
     emailSubject: mock.emailSubject,
     emailFrom: mock.emailFrom,
     emailDate: mock.emailDate,
-    classification: "domain",
+    classification: 'domain',
     extractedData: JSON.stringify(mock.extractedData),
     confidence: mock.confidence,
   };
@@ -198,7 +199,7 @@ export function generateMultipleMockImports(count: number): Array<{
   emailSubject: string;
   emailFrom: string;
   emailDate: string;
-  classification: "subscription" | "domain";
+  classification: 'subscription' | 'domain';
   extractedData: string;
   confidence: number;
 }> {

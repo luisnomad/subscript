@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { type ReactElement, useEffect, useState } from 'react';
 
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 
-import { getPendingImports } from "@/lib/tauri";
-import type { PendingImport } from "@/lib/types";
+import { getPendingImports } from '@/lib/tauri';
+import type { PendingImport } from '@/lib/types';
 
-import { BatchActionsBar } from "./BatchActionsBar";
-import { CreatePendingImportDialog } from "./CreatePendingImportDialog";
-import { EmptyState } from "./EmptyState";
-import { GenerateMockDataButton } from "./GenerateMockDataButton";
-import { PendingImportCard } from "./PendingImportCard";
+import { BatchActionsBar } from './BatchActionsBar';
+import { CreatePendingImportDialog } from './CreatePendingImportDialog';
+import { EmptyState } from './EmptyState';
+import { GenerateMockDataButton } from './GenerateMockDataButton';
+import { PendingImportCard } from './PendingImportCard';
 
 const ANIMATION_DELAY_STEP = 50;
 
-export function PendingQueueView(): React.ReactElement {
+export function PendingQueueView(): ReactElement {
   const [imports, setImports] = useState<PendingImport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -28,14 +28,14 @@ export function PendingQueueView(): React.ReactElement {
       const data = await getPendingImports(false);
       setImports(data);
     } catch (error) {
-      console.error("Failed to load pending imports:", error);
+      console.error('Failed to load pending imports:', error);
     } finally {
       setIsLoading(false);
     }
   }
 
   function handleSelect(id: number, selected: boolean): void {
-    setSelectedIds((prev) => {
+    setSelectedIds(prev => {
       const next = new Set(prev);
       if (selected) {
         next.add(id);
@@ -47,7 +47,7 @@ export function PendingQueueView(): React.ReactElement {
   }
 
   function handleSelectAll(): void {
-    setSelectedIds(new Set(imports.map((imp) => imp.id)));
+    setSelectedIds(new Set(imports.map(imp => imp.id)));
   }
 
   function handleDeselectAll(): void {
@@ -55,8 +55,8 @@ export function PendingQueueView(): React.ReactElement {
   }
 
   function handleRemoveImport(id: number): void {
-    setImports((prev) => prev.filter((imp) => imp.id !== id));
-    setSelectedIds((prev) => {
+    setImports(prev => prev.filter(imp => imp.id !== id));
+    setSelectedIds(prev => {
       const next = new Set(prev);
       next.delete(id);
       return next;
@@ -64,7 +64,7 @@ export function PendingQueueView(): React.ReactElement {
   }
 
   function handleBatchRemove(ids: number[]): void {
-    setImports((prev) => prev.filter((imp) => !ids.includes(imp.id)));
+    setImports(prev => prev.filter(imp => !ids.includes(imp.id)));
     setSelectedIds(new Set());
   }
 
@@ -73,7 +73,9 @@ export function PendingQueueView(): React.ReactElement {
       <div className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-[#d4a574]" />
-          <p className="font-mono text-sm text-[#6b6b6b]">Loading receipts...</p>
+          <p className="font-mono text-sm text-[#6b6b6b]">
+            Loading receipts...
+          </p>
         </div>
       </div>
     );
@@ -98,7 +100,8 @@ export function PendingQueueView(): React.ReactElement {
                 Pending Review
               </h1>
               <p className="mt-1 font-mono text-sm text-[#6b6b6b]">
-                {imports.length} {imports.length === 1 ? "receipt" : "receipts"} awaiting approval
+                {imports.length} {imports.length === 1 ? 'receipt' : 'receipts'}{' '}
+                awaiting approval
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -107,8 +110,14 @@ export function PendingQueueView(): React.ReactElement {
                   {selectedIds.size} selected
                 </div>
               )}
-              <GenerateMockDataButton onSuccess={handleCreateSuccess} testMode={false} />
-              <CreatePendingImportDialog onSuccess={handleCreateSuccess} testMode={false} />
+              <GenerateMockDataButton
+                onSuccess={handleCreateSuccess}
+                testMode={false}
+              />
+              <CreatePendingImportDialog
+                onSuccess={handleCreateSuccess}
+                testMode={false}
+              />
             </div>
           </div>
         </div>
