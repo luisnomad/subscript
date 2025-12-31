@@ -2,7 +2,13 @@
 
 use crate::db::{get_db_connection, DatabaseType};
 use crate::models::AppSettings;
+use crate::services::ollama::OllamaService;
 use crate::utils::{get_current_timestamp, AppResult};
+
+#[tauri::command]
+pub async fn get_ollama_models(endpoint: String) -> AppResult<Vec<String>> {
+    OllamaService::list_models(&endpoint).await
+}
 
 #[tauri::command]
 pub fn get_settings(test_mode: bool) -> AppResult<AppSettings> {
@@ -39,6 +45,10 @@ pub fn get_settings(test_mode: bool) -> AppResult<AppSettings> {
             .get("ollama_endpoint")
             .cloned()
             .unwrap_or_else(|| "http://localhost:11434".to_string()),
+        ollama_model: settings_map
+            .get("ollama_model")
+            .cloned()
+            .unwrap_or_else(|| "llama3".to_string()),
         default_currency: settings_map
             .get("default_currency")
             .cloned()
@@ -75,6 +85,7 @@ pub fn update_settings(settings: AppSettings, test_mode: bool) -> AppResult<()> 
         ("imap_username", settings.imap_username),
         ("imap_use_ssl", settings.imap_use_ssl.to_string()),
         ("ollama_endpoint", settings.ollama_endpoint),
+        ("ollama_model", settings.ollama_model),
         ("default_currency", settings.default_currency),
         (
             "sync_interval_minutes",

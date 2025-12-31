@@ -175,6 +175,7 @@ fn initialize_default_settings(conn: &Connection) -> Result<()> {
         ("imap_use_ssl", "true"),
         ("sync_interval_minutes", "30"),
         ("ollama_endpoint", "http://localhost:11434"),
+        ("ollama_model", "llama3"),
         ("theme", "light"),
     ];
 

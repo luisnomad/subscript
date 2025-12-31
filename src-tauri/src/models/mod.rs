@@ -115,6 +115,7 @@ pub struct AppSettings {
     pub imap_username: String,
     pub imap_use_ssl: bool,
     pub ollama_endpoint: String,
+    pub ollama_model: String,
     pub default_currency: String,
     pub sync_interval_minutes: i32,
     pub theme: String,

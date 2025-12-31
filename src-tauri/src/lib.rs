@@ -55,6 +55,7 @@ pub fn run() {
             // Settings commands
             commands::settings::get_settings,
             commands::settings::update_settings,
+            commands::settings::get_ollama_models,
             commands::settings::test_imap_connection,
             // Receipt commands
             commands::receipts::get_receipt_by_id,

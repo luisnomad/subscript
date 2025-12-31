@@ -18,9 +18,37 @@ struct OllamaResponse {
     response: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OllamaModel {
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct OllamaTagsResponse {
+    models: Vec<OllamaModel>,
+}
+
 impl OllamaService {
     pub fn new(endpoint: String, model: String) -> Self {
         Self { endpoint, model }
+    }
+
+    pub async fn list_models(endpoint: &str) -> AppResult<Vec<String>> {
+        let client = reqwest::Client::new();
+        let url = format!("{}/api/tags", endpoint);
+
+        let response = client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| crate::utils::AppError::Internal(format!("Ollama request failed: {}", e)))?;
+
+        let result: OllamaTagsResponse = response
+            .json()
+            .await
+            .map_err(|e| crate::utils::AppError::Internal(format!("Failed to parse Ollama response: {}", e)))?;
+
+        Ok(result.models.into_iter().map(|m| m.name).collect())
     }
 
     pub async fn generate(&self, prompt: String) -> AppResult<String> {
