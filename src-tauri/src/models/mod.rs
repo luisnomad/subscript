@@ -133,3 +133,80 @@ pub struct SyncLog {
     pub error_message: Option<String>,
     pub created_at: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_subscription_serialization() {
+        let sub = Subscription {
+            id: Some(1),
+            name: "Netflix".to_string(),
+            amount: 15.99,
+            currency: "USD".to_string(),
+            periodicity: "monthly".to_string(),
+            next_date: Some("2024-01-01".to_string()),
+            category: Some("Entertainment".to_string()),
+            status: "active".to_string(),
+            notes: None,
+            created_at: "2023-12-01T10:00:00Z".to_string(),
+            updated_at: "2023-12-01T10:00:00Z".to_string(),
+        };
+
+        let serialized = serde_json::to_value(&sub).unwrap();
+        assert_eq!(serialized["id"], 1);
+        assert_eq!(serialized["name"], "Netflix");
+        assert_eq!(serialized["cost"], 15.99);
+        assert_eq!(serialized["currency"], "USD");
+        assert_eq!(serialized["billingCycle"], "monthly");
+        assert_eq!(serialized["nextBillingDate"], "2024-01-01");
+    }
+
+    #[test]
+    fn test_domain_serialization() {
+        let domain = Domain {
+            id: Some(1),
+            name: "example.com".to_string(),
+            registrar: Some("Namecheap".to_string()),
+            amount: Some(10.0),
+            currency: Some("USD".to_string()),
+            registration_date: Some("2023-01-01".to_string()),
+            expiry_date: "2024-01-01".to_string(),
+            auto_renew: true,
+            status: "active".to_string(),
+            notes: None,
+            created_at: "2023-01-01T10:00:00Z".to_string(),
+            updated_at: "2023-01-01T10:00:00Z".to_string(),
+        };
+
+        let serialized = serde_json::to_value(&domain).unwrap();
+        assert_eq!(serialized["id"], 1);
+        assert_eq!(serialized["domainName"], "example.com");
+        assert_eq!(serialized["cost"], 10.0);
+        assert_eq!(serialized["expiryDate"], "2024-01-01");
+        assert_eq!(serialized["autoRenew"], true);
+    }
+
+    #[test]
+    fn test_pending_import_serialization() {
+        let import = PendingImport {
+            id: Some(1),
+            email_subject: Some("Receipt".to_string()),
+            email_from: "info@netflix.com".to_string(),
+            email_date: Some("2024-01-01".to_string()),
+            classification: Some("subscription".to_string()),
+            confidence: Some(0.95),
+            extracted_data: "{}".to_string(),
+            receipt_id: None,
+            status: "pending".to_string(),
+            created_at: "2024-01-01T10:00:00Z".to_string(),
+        };
+
+        let serialized = serde_json::to_value(&import).unwrap();
+        assert_eq!(serialized["id"], 1);
+        assert_eq!(serialized["emailSubject"], "Receipt");
+        assert_eq!(serialized["emailFrom"], "info@netflix.com");
+        assert_eq!(serialized["confidence"], 0.95);
+    }
+}

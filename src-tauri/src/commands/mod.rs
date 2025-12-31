@@ -8,3 +8,6 @@ pub mod settings;
 pub mod receipts;
 pub mod sync;
 pub mod database;
+
+#[cfg(test)]
+mod tests;
