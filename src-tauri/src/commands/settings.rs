@@ -93,15 +93,26 @@ pub fn update_settings(settings: AppSettings, test_mode: bool) -> AppResult<()> 
     Ok(())
 }
 
+use crate::services::imap::ImapService;
+
 #[tauri::command]
-pub fn test_imap_connection(
-    _server: String,
-    _port: i32,
-    _username: String,
-    _password: String,
-    _use_ssl: bool,
+pub async fn test_imap_connection(
+    server: String,
+    port: i32,
+    username: String,
+    password: String,
+    use_ssl: bool,
 ) -> Result<String, String> {
-    // Placeholder for IMAP connection test
-    // This will be implemented in Phase 3 when IMAP integration is added
-    Ok("IMAP connection test not yet implemented".to_string())
+    let imap_service = ImapService::new(
+        server,
+        port as u16,
+        username,
+        password,
+        use_ssl,
+    );
+
+    match imap_service.test_connection().await {
+        Ok(_) => Ok("Successfully connected to IMAP server".to_string()),
+        Err(e) => Err(format!("Failed to connect to IMAP server: {}", e)),
+    }
 }

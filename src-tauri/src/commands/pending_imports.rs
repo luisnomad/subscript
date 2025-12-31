@@ -1,7 +1,7 @@
 // Pending import command handlers
 
 use crate::db::{get_db_connection, DatabaseType};
-use crate::models::{PendingImport, Subscription, Domain, SubscriptionExtraction, DomainExtraction};
+use crate::models::{PendingImport, SubscriptionExtraction, DomainExtraction};
 use crate::utils::{get_current_timestamp, AppResult};
 use rusqlite::OptionalExtension;
 
