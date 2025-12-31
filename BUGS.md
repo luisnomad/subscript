@@ -88,16 +88,30 @@ This document tracks bugs discovered during development and their resolution sta
 - `src/components/pending/PendingImportCard.tsx` - Updated field references
 - `src/components/pending/EditDialog.tsx` - Updated field references
 
-### 4. Tauri 2.x Command Argument Naming Convention
+### 5. async-imap Compilation Errors
 
 **Status**: ✅ Fixed
 
 **Description**: 
-- Tauri 2.x expects camelCase for command arguments passed from the frontend via `invoke`.
-- Using snake_case (e.g., `test_mode`) resulted in "missing required key" errors.
+- `async-imap` 0.9.x had a missing `connect` function and type inference issues.
+- Internal compilation errors occurred when both `runtime-async-std` and `runtime-tokio` were enabled.
 
 **Fix**:
-- Updated all `invoke` calls in `src/lib/tauri.ts` to use camelCase for argument keys (e.g., `testMode`).
+- Updated `async-imap` to version 0.11.1 in `Cargo.toml`.
+- Disabled default features for `async-imap` and explicitly enabled `runtime-tokio`.
+- Added `tokio-native-tls` dependency.
+- Refactored `ImapService::test_connection` to manually establish a TCP connection and wrap it in a TLS stream, as required by newer versions of `async-imap`.
+- Added `client.read_response().await` to consume the server greeting before login.
+
+### 6. TypeScript Unused Variable Warnings
+
+**Status**: ✅ Fixed
+
+**Description**: 
+- `DECIMAL_PLACES` was declared but never used in `DomainsView.tsx` and `SubscriptionsView.tsx`.
+
+**Fix**:
+- Removed the unused constant from both files.
 
 ### 5. Rust Serialization Error for Partial Data
 

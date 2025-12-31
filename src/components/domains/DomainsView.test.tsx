@@ -57,4 +57,51 @@ describe('DomainsView', () => {
       expect(screen.getByText(/Expires: 2025-01-01/i)).toBeInTheDocument();
     });
   });
+
+  it('filters domains by search query', async () => {
+    const mockDomains = [
+      {
+        id: 1,
+        domainName: 'example.com',
+        registrar: 'Namecheap',
+        cost: 12.99,
+        currency: 'USD',
+        registrationDate: '2023-01-01',
+        expiryDate: '2025-01-01',
+        autoRenew: true,
+        status: 'active' as const,
+        notes: null,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: 2,
+        domainName: 'test.org',
+        registrar: 'GoDaddy',
+        cost: 15.99,
+        currency: 'USD',
+        registrationDate: '2023-05-01',
+        expiryDate: '2025-05-01',
+        autoRenew: false,
+        status: 'active' as const,
+        notes: null,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+    ];
+    vi.mocked(tauri.getDomains).mockResolvedValue(mockDomains);
+    render(<DomainsView />);
+
+    await waitFor(() => {
+      expect(screen.getByText('example.com')).toBeInTheDocument();
+      expect(screen.getByText('test.org')).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText(/Search domains.../i);
+    const { fireEvent } = await import('@testing-library/react');
+    fireEvent.change(searchInput, { target: { value: 'example' } });
+
+    expect(screen.getByText('example.com')).toBeInTheDocument();
+    expect(screen.queryByText('test.org')).not.toBeInTheDocument();
+  });
 });

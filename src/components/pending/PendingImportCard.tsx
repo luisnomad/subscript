@@ -173,8 +173,14 @@ export function PendingImportCard({
               <SubscriptionFields
                 data={extractedData as SubscriptionExtraction}
               />
-            ) : (
+            ) : importItem.classification === 'domain' ? (
               <DomainFields data={extractedData as DomainExtraction} />
+            ) : (
+              <div className="rounded-md border-2 border-dashed border-[#e5e5e5] p-4 text-center">
+                <p className="font-mono text-xs text-[#6b6b6b]">
+                  No data extracted for junk mail
+                </p>
+              </div>
             )}
           </div>
 

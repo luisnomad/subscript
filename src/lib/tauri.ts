@@ -197,6 +197,10 @@ export async function getSettings(
   return invoke<AppSettings>('get_settings', { testMode });
 }
 
+export async function getOllamaModels(endpoint: string): Promise<string[]> {
+  return invoke<string[]>('get_ollama_models', { endpoint });
+}
+
 export async function updateSettings(
   settings: AppSettings,
   testMode: boolean = false

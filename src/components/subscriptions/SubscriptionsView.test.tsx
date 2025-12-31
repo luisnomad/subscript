@@ -51,9 +51,55 @@ describe('SubscriptionsView', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Netflix')).toBeInTheDocument();
-      expect(screen.getByText(/USD 15.99 \/ monthly/i)).toBeInTheDocument();
+      expect(screen.getByText(/USD 15.99/i)).toBeInTheDocument();
+      expect(screen.getByText(/monthly/i)).toBeInTheDocument();
       expect(screen.getByText('active')).toBeInTheDocument();
       expect(screen.getByText('Entertainment')).toBeInTheDocument();
     });
+  });
+
+  it('filters subscriptions by search query', async () => {
+    const mockSubs = [
+      {
+        id: 1,
+        name: 'Netflix',
+        cost: 15.99,
+        currency: 'USD',
+        billingCycle: 'monthly' as const,
+        nextBillingDate: '2024-02-01',
+        status: 'active' as const,
+        category: 'Entertainment',
+        notes: null,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: 2,
+        name: 'Spotify',
+        cost: 9.99,
+        currency: 'USD',
+        billingCycle: 'monthly' as const,
+        nextBillingDate: '2024-02-05',
+        status: 'active' as const,
+        category: 'Music',
+        notes: null,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+    ];
+    vi.mocked(tauri.getSubscriptions).mockResolvedValue(mockSubs);
+    render(<SubscriptionsView />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Netflix')).toBeInTheDocument();
+      expect(screen.getByText('Spotify')).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText(/Search subscriptions.../i);
+    const { fireEvent } = await import('@testing-library/react');
+    fireEvent.change(searchInput, { target: { value: 'Netflix' } });
+
+    expect(screen.getByText('Netflix')).toBeInTheDocument();
+    expect(screen.queryByText('Spotify')).not.toBeInTheDocument();
   });
 });

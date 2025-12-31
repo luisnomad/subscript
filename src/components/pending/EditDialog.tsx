@@ -108,10 +108,11 @@ function SubscriptionForm({
   return (
     <>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="sub-name" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Name
         </label>
         <Input
+          id="sub-name"
           value={data.name}
           onChange={e => onChange({ ...data, name: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
@@ -119,10 +120,11 @@ function SubscriptionForm({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+          <label htmlFor="sub-cost" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
             Cost
           </label>
           <Input
+            id="sub-cost"
             type="number"
             step="0.01"
             value={data.cost}
@@ -133,10 +135,11 @@ function SubscriptionForm({
           />
         </div>
         <div>
-          <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+          <label htmlFor="sub-currency" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
             Currency
           </label>
           <Input
+            id="sub-currency"
             value={data.currency}
             onChange={e => onChange({ ...data, currency: e.target.value })}
             className="border-2 border-[#e5e5e5] font-mono"
@@ -144,7 +147,7 @@ function SubscriptionForm({
         </div>
       </div>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="sub-billing" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Billing Cycle
         </label>
         <Select
@@ -153,7 +156,7 @@ function SubscriptionForm({
             onChange({ ...data, billingCycle: value as BillingCycle })
           }
         >
-          <SelectTrigger className="border-2 border-[#e5e5e5] font-mono">
+          <SelectTrigger id="sub-billing" className="border-2 border-[#e5e5e5] font-mono">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -164,10 +167,11 @@ function SubscriptionForm({
         </Select>
       </div>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="sub-category" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Category (optional)
         </label>
         <Input
+          id="sub-category"
           value={data.category ?? ''}
           onChange={e =>
             onChange({ ...data, category: e.target.value || undefined })
@@ -189,20 +193,22 @@ function DomainForm({
   return (
     <>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="dom-name" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Domain Name
         </label>
         <Input
+          id="dom-name"
           value={data.domainName}
           onChange={e => onChange({ ...data, domainName: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
         />
       </div>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="dom-registrar" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Registrar
         </label>
         <Input
+          id="dom-registrar"
           value={data.registrar}
           onChange={e => onChange({ ...data, registrar: e.target.value })}
           className="border-2 border-[#e5e5e5] font-mono"
@@ -210,10 +216,11 @@ function DomainForm({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+          <label htmlFor="dom-cost" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
             Cost
           </label>
           <Input
+            id="dom-cost"
             type="number"
             step="0.01"
             value={data.cost}
@@ -224,10 +231,11 @@ function DomainForm({
           />
         </div>
         <div>
-          <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+          <label htmlFor="dom-currency" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
             Currency
           </label>
           <Input
+            id="dom-currency"
             value={data.currency}
             onChange={e => onChange({ ...data, currency: e.target.value })}
             className="border-2 border-[#e5e5e5] font-mono"
@@ -235,10 +243,11 @@ function DomainForm({
         </div>
       </div>
       <div>
-        <label className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
+        <label htmlFor="dom-expiry" className="mb-2 block font-mono text-sm font-medium text-[#2a2a2a]">
           Expiry Date
         </label>
         <Input
+          id="dom-expiry"
           type="date"
           value={data.expiryDate}
           onChange={e => onChange({ ...data, expiryDate: e.target.value })}

@@ -79,4 +79,23 @@ describe('PendingQueueView', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('allows selecting items for batch actions', async () => {
+    vi.mocked(tauri.getPendingImports).mockResolvedValue(mockImports);
+    render(<PendingQueueView />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Netflix Receipt')).toBeInTheDocument();
+    });
+
+    // Find the checkbox for the first item
+    // The checkbox is likely in PendingImportCard
+    const checkbox = screen.getByRole('checkbox');
+    const { fireEvent } = await import('@testing-library/react');
+    fireEvent.click(checkbox);
+
+    expect(screen.getByText('1 item selected')).toBeInTheDocument();
+    expect(screen.getByText('Approve All')).toBeInTheDocument();
+    expect(screen.getByText('Reject All')).toBeInTheDocument();
+  });
 });

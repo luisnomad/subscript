@@ -106,15 +106,15 @@ export interface Receipt {
 // ============================================================================
 
 export interface AppSettings {
-  id: number;
   imapServer: string;
   imapPort: number;
   imapUsername: string;
   imapUseSsl: boolean;
   ollamaEndpoint: string;
+  ollamaModel: string;
   defaultCurrency: string;
   syncIntervalMinutes: number;
-  updatedAt: string; // ISO 8601 datetime
+  theme: string;
 }
 
 // ============================================================================
