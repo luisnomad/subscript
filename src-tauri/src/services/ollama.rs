@@ -96,8 +96,8 @@ CLASSIFICATION OPTIONS:
 CONFIDENCE: Return a value from 0.0 to 1.0 indicating how confident you are.
 
 EXTRACTION RULES:
-- For subscriptions: Extract vendor name, amount, currency, billing cycle (monthly/yearly/one-time), next billing date, and category
-- For domains: Extract domain name, registrar, and expiry date
+- For subscriptions: Extract vendor name, cost, currency, billing cycle (monthly/yearly/one-time), next billing date, and category
+- For domains: Extract domain name, registrar, cost, currency, registration date, and expiry date
 - For junk: Only return type and confidence, no data field
 - All dates should be in ISO format (YYYY-MM-DD)
 - Currency codes should be 3-letter ISO codes (USD, EUR, GBP, etc.)
@@ -108,17 +108,21 @@ Return ONLY valid JSON matching this structure:
   "confidence": 0.0-1.0,
   "data": {{
     // For subscriptions:
-    "vendor": "string",
-    "amount": number,
+    "name": "string",
+    "cost": number,
     "currency": "string",
-    "cycle": "monthly" | "yearly" | "one-time",
-    "next_billing": "YYYY-MM-DD" (optional),
+    "billingCycle": "monthly" | "yearly" | "one-time",
+    "nextBillingDate": "YYYY-MM-DD" (optional),
     "category": "string" (optional)
     
     // For domains:
-    "domain_name": "string",
+    "domainName": "string",
     "registrar": "string" (optional),
-    "expiry_date": "YYYY-MM-DD"
+    "cost": number (optional),
+    "currency": "string" (optional),
+    "registrationDate": "YYYY-MM-DD" (optional),
+    "expiryDate": "YYYY-MM-DD",
+    "autoRenew": boolean (optional)
   }}
 }}
 

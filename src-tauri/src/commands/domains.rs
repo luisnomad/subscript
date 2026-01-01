@@ -15,7 +15,7 @@ pub fn get_domains(test_mode: bool) -> AppResult<Vec<Domain>> {
     let conn = get_db_connection(db_type)?;
 
     let mut stmt = conn
-        .prepare("SELECT id, name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at FROM domains ORDER BY expiry_date ASC")?;
+        .prepare("SELECT id, name, registrar, cost, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at FROM domains ORDER BY expiry_date ASC")?;
 
     let domains = stmt
         .query_map([], |row| {
@@ -23,7 +23,7 @@ pub fn get_domains(test_mode: bool) -> AppResult<Vec<Domain>> {
                 id: Some(row.get(0)?),
                 name: row.get(1)?,
                 registrar: row.get(2)?,
-                amount: row.get(3)?,
+                cost: row.get(3)?,
                 currency: row.get(4)?,
                 registration_date: row.get(5)?,
                 expiry_date: row.get(6)?,
@@ -51,14 +51,14 @@ pub fn get_domain_by_id(id: i64, test_mode: bool) -> AppResult<Domain> {
 
     let domain = conn
         .query_row(
-            "SELECT id, name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at FROM domains WHERE id = ?1",
+            "SELECT id, name, registrar, cost, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at FROM domains WHERE id = ?1",
             [id],
             |row| {
                 Ok(Domain {
                     id: Some(row.get(0)?),
                     name: row.get(1)?,
                     registrar: row.get(2)?,
-                    amount: row.get(3)?,
+                    cost: row.get(3)?,
                     currency: row.get(4)?,
                     registration_date: row.get(5)?,
                     expiry_date: row.get(6)?,
@@ -87,12 +87,12 @@ pub fn create_domain(domain: Domain, test_mode: bool) -> AppResult<i64> {
     let now = get_current_timestamp();
 
     conn.execute(
-        "INSERT INTO domains (name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
+        "INSERT INTO domains (name, registrar, cost, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
         rusqlite::params![
             domain.name,
             domain.registrar,
-            domain.amount,
+            domain.cost,
             domain.currency,
             domain.registration_date,
             domain.expiry_date,
@@ -122,11 +122,11 @@ pub fn update_domain(domain: Domain, test_mode: bool) -> AppResult<()> {
     let id = domain.id.ok_or_else(|| crate::utils::error::AppError::Validation("Domain ID is required for update".to_string()))?;
 
     conn.execute(
-        "UPDATE domains SET name = ?1, registrar = ?2, amount = ?3, currency = ?4, registration_date = ?5, expiry_date = ?6, auto_renew = ?7, status = ?8, notes = ?9, updated_at = ?10 WHERE id = ?11",
+        "UPDATE domains SET name = ?1, registrar = ?2, cost = ?3, currency = ?4, registration_date = ?5, expiry_date = ?6, auto_renew = ?7, status = ?8, notes = ?9, updated_at = ?10 WHERE id = ?11",
         rusqlite::params![
             domain.name,
             domain.registrar,
-            domain.amount,
+            domain.cost,
             domain.currency,
             domain.registration_date,
             domain.expiry_date,
@@ -175,7 +175,7 @@ mod tests {
             id: None,
             name: "example.com".to_string(),
             registrar: Some("Namecheap".to_string()),
-            amount: Some(12.99),
+            cost: Some(12.99),
             currency: Some("USD".to_string()),
             registration_date: Some("2023-01-01".to_string()),
             expiry_date: "2024-01-01".to_string(),
@@ -202,7 +202,7 @@ mod tests {
             id: None,
             name: "original.com".to_string(),
             registrar: None,
-            amount: None,
+            cost: None,
             currency: None,
             registration_date: None,
             expiry_date: "2024-01-01".to_string(),

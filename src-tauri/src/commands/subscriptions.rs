@@ -15,14 +15,14 @@ pub fn get_subscriptions(test_mode: bool) -> AppResult<Vec<Subscription>> {
     let conn = get_db_connection(db_type)?;
 
     let mut stmt = conn
-        .prepare("SELECT id, name, amount, currency, periodicity, next_date, category, status, notes, created_at, updated_at FROM subscriptions ORDER BY created_at DESC")?;
+        .prepare("SELECT id, name, cost, currency, periodicity, next_date, category, status, notes, created_at, updated_at FROM subscriptions ORDER BY created_at DESC")?;
 
     let subscriptions = stmt
         .query_map([], |row| {
             Ok(Subscription {
                 id: Some(row.get(0)?),
                 name: row.get(1)?,
-                amount: row.get(2)?,
+                cost: row.get(2)?,
                 currency: row.get(3)?,
                 periodicity: row.get(4)?,
                 next_date: row.get(5)?,
@@ -50,13 +50,13 @@ pub fn get_subscription_by_id(id: i64, test_mode: bool) -> AppResult<Subscriptio
 
     let subscription = conn
         .query_row(
-            "SELECT id, name, amount, currency, periodicity, next_date, category, status, notes, created_at, updated_at FROM subscriptions WHERE id = ?1",
+            "SELECT id, name, cost, currency, periodicity, next_date, category, status, notes, created_at, updated_at FROM subscriptions WHERE id = ?1",
             [id],
             |row| {
                 Ok(Subscription {
                     id: Some(row.get(0)?),
                     name: row.get(1)?,
-                    amount: row.get(2)?,
+                    cost: row.get(2)?,
                     currency: row.get(3)?,
                     periodicity: row.get(4)?,
                     next_date: row.get(5)?,
@@ -85,11 +85,11 @@ pub fn create_subscription(subscription: Subscription, test_mode: bool) -> AppRe
     let now = get_current_timestamp();
 
     conn.execute(
-        "INSERT INTO subscriptions (name, amount, currency, periodicity, next_date, category, status, notes, created_at, updated_at)
+        "INSERT INTO subscriptions (name, cost, currency, periodicity, next_date, category, status, notes, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
         rusqlite::params![
             subscription.name,
-            subscription.amount,
+            subscription.cost,
             subscription.currency,
             subscription.periodicity,
             subscription.next_date,
@@ -119,10 +119,10 @@ pub fn update_subscription(subscription: Subscription, test_mode: bool) -> AppRe
     let id = subscription.id.ok_or_else(|| crate::utils::error::AppError::Validation("Subscription ID is required for update".to_string()))?;
 
     conn.execute(
-        "UPDATE subscriptions SET name = ?1, amount = ?2, currency = ?3, periodicity = ?4, next_date = ?5, category = ?6, status = ?7, notes = ?8, updated_at = ?9 WHERE id = ?10",
+        "UPDATE subscriptions SET name = ?1, cost = ?2, currency = ?3, periodicity = ?4, next_date = ?5, category = ?6, status = ?7, notes = ?8, updated_at = ?9 WHERE id = ?10",
         rusqlite::params![
             subscription.name,
-            subscription.amount,
+            subscription.cost,
             subscription.currency,
             subscription.periodicity,
             subscription.next_date,
@@ -170,7 +170,7 @@ mod tests {
         let sub = Subscription {
             id: None,
             name: "Test Sub".to_string(),
-            amount: 9.99,
+            cost: 9.99,
             currency: "USD".to_string(),
             periodicity: "monthly".to_string(),
             next_date: Some("2024-01-01".to_string()),
@@ -187,7 +187,7 @@ mod tests {
         let subs = get_subscriptions(true).unwrap();
         assert_eq!(subs.len(), 1);
         assert_eq!(subs[0].name, "Test Sub");
-        assert_eq!(subs[0].amount, 9.99);
+        assert_eq!(subs[0].cost, 9.99);
     }
 
     #[test]
@@ -197,7 +197,7 @@ mod tests {
         let sub = Subscription {
             id: None,
             name: "Original Name".to_string(),
-            amount: 10.0,
+            cost: 10.0,
             currency: "USD".to_string(),
             periodicity: "monthly".to_string(),
             next_date: None,
@@ -213,13 +213,13 @@ mod tests {
         let mut updated_sub = sub;
         updated_sub.id = Some(id);
         updated_sub.name = "Updated Name".to_string();
-        updated_sub.amount = 15.0;
+        updated_sub.cost = 15.0;
 
         update_subscription(updated_sub, true).unwrap();
 
         let fetched = get_subscription_by_id(id, true).unwrap();
         assert_eq!(fetched.name, "Updated Name");
-        assert_eq!(fetched.amount, 15.0);
+        assert_eq!(fetched.cost, 15.0);
     }
 
     #[test]
@@ -229,7 +229,7 @@ mod tests {
         let sub = Subscription {
             id: None,
             name: "To Delete".to_string(),
-            amount: 5.0,
+            cost: 5.0,
             currency: "USD".to_string(),
             periodicity: "monthly".to_string(),
             next_date: None,

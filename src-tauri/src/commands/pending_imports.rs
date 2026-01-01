@@ -167,11 +167,11 @@ fn create_subscription_from_import(
     let now = get_current_timestamp();
 
     conn.execute(
-        "INSERT INTO subscriptions (name, amount, currency, periodicity, next_date, category, status, notes, created_at, updated_at)
+        "INSERT INTO subscriptions (name, cost, currency, periodicity, next_date, category, status, notes, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
         rusqlite::params![
             extraction.name,
-            extraction.amount,
+            extraction.cost,
             extraction.currency,
             extraction.periodicity,
             extraction.next_date,
@@ -207,7 +207,7 @@ fn create_domain_from_import(
         conn.execute(
             "UPDATE domains SET 
                 registrar = COALESCE(?1, registrar),
-                amount = COALESCE(?2, amount),
+                cost = COALESCE(?2, cost),
                 currency = COALESCE(?3, currency),
                 registration_date = COALESCE(?4, registration_date),
                 expiry_date = ?5,
@@ -216,7 +216,7 @@ fn create_domain_from_import(
              WHERE id = ?8",
             rusqlite::params![
                 extraction.registrar,
-                extraction.amount,
+                extraction.cost,
                 extraction.currency,
                 extraction.registration_date,
                 extraction.expiry_date,
@@ -229,12 +229,12 @@ fn create_domain_from_import(
     } else {
         // Insert new domain
         conn.execute(
-            "INSERT INTO domains (name, registrar, amount, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
+            "INSERT INTO domains (name, registrar, cost, currency, registration_date, expiry_date, auto_renew, status, notes, created_at, updated_at)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
             rusqlite::params![
                 extraction.name,
                 extraction.registrar,
-                extraction.amount,
+                extraction.cost,
                 extraction.currency,
                 extraction.registration_date,
                 extraction.expiry_date,

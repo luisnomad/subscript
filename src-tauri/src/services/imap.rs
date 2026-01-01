@@ -211,3 +211,69 @@ impl ImapService {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_simple_email() {
+        let raw_email = b"From: sender@example.com\r\n\
+                          Subject: Test Subject\r\n\
+                          Date: Mon, 1 Jan 2024 10:00:00 +0000\r\n\
+                          Content-Type: text/plain\r\n\
+                          \r\n\
+                          This is the email body.";
+        
+        let service = ImapService::new(
+            "localhost".to_string(),
+            993,
+            "user".to_string(),
+            "pass".to_string(),
+            true,
+        );
+        
+        let parsed = service.parse_email(raw_email).unwrap();
+        
+        assert_eq!(parsed.from, "sender@example.com");
+        assert_eq!(parsed.subject, "Test Subject");
+        assert_eq!(parsed.body, "This is the email body.");
+        assert_eq!(parsed.attachments.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_multipart_email() {
+        let raw_email = b"From: sender@example.com\r\n\
+                          Subject: Multipart Test\r\n\
+                          MIME-Version: 1.0\r\n\
+                          Content-Type: multipart/mixed; boundary=\"boundary\"\r\n\
+                          \r\n\
+                          --boundary\r\n\
+                          Content-Type: text/plain\r\n\
+                          \r\n\
+                          Body text.\r\n\
+                          --boundary\r\n\
+                          Content-Type: application/pdf\r\n\
+                          Content-Disposition: attachment; filename=\"receipt.pdf\"\r\n\
+                          \r\n\
+                          PDFDATA\r\n\
+                          --boundary--";
+        
+        let service = ImapService::new(
+            "localhost".to_string(),
+            993,
+            "user".to_string(),
+            "pass".to_string(),
+            true,
+        );
+        
+        let parsed = service.parse_email(raw_email).unwrap();
+        
+        assert_eq!(parsed.subject, "Multipart Test");
+        assert_eq!(parsed.body.trim(), "Body text.");
+        assert_eq!(parsed.attachments.len(), 1);
+        assert_eq!(parsed.attachments[0].filename, "receipt.pdf");
+        assert_eq!(parsed.attachments[0].content_type, "application/pdf");
+        assert!(parsed.attachments[0].data.starts_with(b"PDFDATA"));
+    }
+}

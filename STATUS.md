@@ -20,6 +20,7 @@ The codebase has undergone a comprehensive linting and refactoring pass. All cri
 | Phase 4: Manual Entry & Testing | ✅ Completed | Add dialogs, mock data, basic views |
 | Phase 4.5: Code Review & Bug Fixes | ✅ Completed | Critical build and test issues fixed |
 | Phase 4.6: Linting & Refactoring | ✅ Completed | 0 ESLint violations, component decomposition |
+| Phase 6: Email Processing Pipeline | ✅ Completed | IMAP, MarkItDown, Ollama, SyncLog |
 | Phase 5: Subscription & Domain Management | ⏳ Not Started | Navigation, list views, edit dialogs |
 
 ---
@@ -34,7 +35,8 @@ The codebase has undergone a comprehensive linting and refactoring pass. All cri
 
 ### Backend (Cargo)
 ```
-✅ 10/10 tests passing
+✅ 15/15 tests passing
+- Added unit tests for IMAP parsing and Sync content extraction.
 - Fixed race condition in `test_approve_pending_import` by enforcing single-threaded test execution.
 ```
 
@@ -56,22 +58,15 @@ The codebase has undergone a comprehensive linting and refactoring pass. All cri
 ### Architecture Status
 - **Strict Limits**: All functions now adhere to the 50-line limit.
 - **File Lengths**: All files adhere to the 200-line limit (300 for dialogs).
-- **Naming Inconsistency**: Rust models still use `amount` internally while the API uses `cost`. This is documented and should be unified in a future refactor.
+- **Naming Inconsistency**: Standardized on `cost` across all layers (Rust models, database, and API).
 
 ---
 
 ## Recommendations (Updated)
 
 ### 🟡 Medium Priority
-1. **Clean up dead Rust code**
-   - Remove or implement `SyncLog`, `is_valid_email`, and `is_test_email`.
-
-2. **Unify naming conventions**
-   - Standardize on `cost` vs `amount` across all layers.
-
-### 🟢 Low Priority
-3. **Functional Testing**
-   - Perform end-to-end testing of the pending review workflow with the new refactored components.
+1. **Functional Testing**
+   - Perform end-to-end testing of the pending review workflow with the new refactored components and naming changes.
 
 ---
 

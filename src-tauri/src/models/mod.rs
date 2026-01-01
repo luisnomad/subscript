@@ -8,8 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Subscription {
     pub id: Option<i64>,
     pub name: String,
-    #[serde(rename = "cost")]
-    pub amount: f64,
+    pub cost: f64,
     pub currency: String,
     #[serde(rename = "billingCycle")]
     pub periodicity: String, // "monthly", "yearly", "one-time"
@@ -26,8 +25,7 @@ pub struct Subscription {
 #[serde(rename_all = "camelCase")]
 pub struct SubscriptionExtraction {
     pub name: String,
-    #[serde(rename = "cost")]
-    pub amount: f64,
+    pub cost: f64,
     pub currency: String,
     #[serde(rename = "billingCycle")]
     pub periodicity: String,
@@ -42,8 +40,7 @@ pub struct DomainExtraction {
     #[serde(rename = "domainName")]
     pub name: String,
     pub registrar: Option<String>,
-    #[serde(rename = "cost")]
-    pub amount: Option<f64>,
+    pub cost: Option<f64>,
     pub currency: Option<String>,
     #[serde(rename = "registrationDate")]
     pub registration_date: Option<String>,
@@ -60,8 +57,7 @@ pub struct Domain {
     #[serde(rename = "domainName")]
     pub name: String,
     pub registrar: Option<String>,
-    #[serde(rename = "cost")]
-    pub amount: Option<f64>,
+    pub cost: Option<f64>,
     pub currency: Option<String>,
     #[serde(rename = "registrationDate")]
     pub registration_date: Option<String>,
@@ -161,7 +157,7 @@ mod tests {
         let sub = Subscription {
             id: Some(1),
             name: "Netflix".to_string(),
-            amount: 15.99,
+            cost: 15.99,
             currency: "USD".to_string(),
             periodicity: "monthly".to_string(),
             next_date: Some("2024-01-01".to_string()),
@@ -187,7 +183,7 @@ mod tests {
             id: Some(1),
             name: "example.com".to_string(),
             registrar: Some("Namecheap".to_string()),
-            amount: Some(10.0),
+            cost: Some(10.0),
             currency: Some("USD".to_string()),
             registration_date: Some("2023-01-01".to_string()),
             expiry_date: "2024-01-01".to_string(),

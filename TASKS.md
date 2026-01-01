@@ -6,85 +6,40 @@
 
 ---
 
-## ✅ Phase 4.5: Code Review & Bug Fixes
+## 📱 Phase 5: Subscription & Domain Management
 
-**Purpose**: Address discovered bugs and add comprehensive testing to prevent regressions.
+**Purpose**: Implement the main list views and management interfaces for active subscriptions and domains.
 
-### Unit Testing Setup
-- [x] Write integration tests
-  - [x] Test full Tauri command flow (Rust + TypeScript)
-  - [x] Test data transformation between frontend and backend
-  - [x] Test error handling and edge cases
-  - [x] Mock database operations
+### Navigation & Layout
+- [ ] Implement sidebar/tabs for switching between views
+  - [ ] Subscriptions View
+  - [ ] Domains View
+  - [ ] Pending Review (Current)
+  - [ ] Settings
 
-### Test Coverage Goals
-- [x] Achieve >80% code coverage for utilities
-- [x] Achieve >70% code coverage for Rust commands
-- [x] All data models have serialization tests
-- [x] All Tauri commands have integration tests
+### Subscriptions View
+- [ ] Implement list/grid view of active subscriptions
+- [ ] Add filtering by category and periodicity
+- [ ] Add sorting by name, cost, and next billing date
+- [ ] Implement "Edit Subscription" dialog
+- [ ] Implement "Delete Subscription" confirmation
 
----
+### Domains View
+- [ ] Implement list/grid view of active domains
+- [ ] Add sorting by name and expiry date
+- [ ] Implement "Edit Domain" dialog
+- [ ] Implement "Delete Domain" confirmation
 
-## 📧 Phase 6: Email Processing Pipeline
-
-**Purpose**: Automate the ingestion of receipts from email using IMAP, MarkItDown, and Ollama.
-
-### IMAP Service Enhancements
-- [x] Implement `fetch_unread_emails` in `imap.rs`
-- [x] Implement email parsing using `mailparse`
-- [x] Extract attachments (PDF, images) and email body
-- [x] Handle [test] subject prefix for routing to test database
-
-### MarkItDown Integration
-- [x] Implement `ensure_markitdown` to check/install the tool
-- [x] Enhance `convert_to_markdown` to handle different file types
-- [x] Add support for converting email body (HTML/Text) to markdown
-
-### Ollama LLM Extraction
-- [x] Define structured prompt for receipt analysis
-- [x] Implement JSON response parsing in `ollama.rs`
-- [x] Handle different extraction types (subscription, domain, junk)
-- [x] Implement confidence score extraction
-
-### Sync Orchestration
-- [x] Create `SyncService` to coordinate the pipeline
-- [x] Implement background sync task (30-minute interval)
-- [x] Save extracted data to `pending_imports` table
-- [x] Archive original receipts in `receipts` table
-- [x] Implement manual sync trigger command
+### Dashboard/Overview (Optional)
+- [ ] Monthly/Yearly cost summary
+- [ ] Upcoming renewals alert
 
 ---
 
 ## 🧪 Phase 7: Testing
 
-### Unit Tests
-- [x] Set up testing framework (Vitest recommended for Vite)
-- [x] Write tests for utility functions
-  - [x] `cn()` class name merger
-  - [x] Date formatting utilities (when implemented)
-  - [x] Currency formatting utilities (when implemented)
-- [x] Write tests for TypeScript type guards (if any)
-- [x] Achieve >80% code coverage for utilities
-
-### Component Tests
-- [x] Write tests for UI components
-  - [x] Button variants render correctly
-  - [x] Card component renders children
-  - [x] Badge displays correct colors
-  - [x] Form inputs handle validation
-- [x] Write tests for feature components
-  - [x] PendingImportCard displays data correctly
-  - [x] Approve/reject actions work
-  - [x] Edit mode toggles properly
-  - [x] Batch selection works
-- [x] Mock Tauri commands for component tests
-
 ### Integration Tests
-- [x] Test Tauri command integration
-  - [x] Mock Rust backend responses
-  - [x] Test error handling
-  - [x] Test loading states
-- [ ] Test email processing pipeline (when implemented)
+- [ ] Test email processing pipeline
   - [ ] Mock IMAP responses
   - [ ] Mock MarkItDown responses
   - [ ] Mock Ollama responses

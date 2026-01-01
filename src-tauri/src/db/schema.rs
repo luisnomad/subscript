@@ -13,7 +13,7 @@ pub fn init_database(conn: &Connection) -> Result<()> {
         "CREATE TABLE IF NOT EXISTS subscriptions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            amount REAL NOT NULL,
+            cost REAL NOT NULL,
             currency TEXT NOT NULL DEFAULT 'USD',
             periodicity TEXT NOT NULL CHECK(periodicity IN ('monthly', 'yearly', 'one-time')),
             next_date DATE,
@@ -42,7 +42,7 @@ pub fn init_database(conn: &Connection) -> Result<()> {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
             registrar TEXT,
-            amount REAL,
+            cost REAL,
             currency TEXT DEFAULT 'USD',
             registration_date DATE,
             expiry_date DATE NOT NULL,

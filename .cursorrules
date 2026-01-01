@@ -242,24 +242,24 @@ src/
 ```typescript
 // ✅ GOOD - Pure function, early return
 function formatCurrency(
-  amount: number, 
+  cost: number, 
   currency: string
 ): string {
-  if (amount === 0) return `${currency} 0.00`;
+  if (cost === 0) return `${currency} 0.00`;
   
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
-  }).format(amount);
+  }).format(cost);
 }
 
 // ❌ BAD - Nested logic, unclear return
-function formatCurrency(amount: number, currency: string) {
-  if (amount !== 0) {
+function formatCurrency(cost: number, currency: string) {
+  if (cost !== 0) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
-    }).format(amount);
+    }).format(cost);
   } else {
     return `${currency} 0.00`;
   }
@@ -490,7 +490,7 @@ src/
 // ✅ GOOD - Explains non-obvious logic
 // We convert to EUR on display because users requested a single currency view.
 // Original currency is preserved in the database for receipt accuracy.
-const displayAmount = convertCurrency(item.amount, item.currency, 'EUR');
+const displayCost = convertCurrency(item.cost, item.currency, 'EUR');
 
 // ❌ BAD - States the obvious
 // Get the user's name

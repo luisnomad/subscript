@@ -20,7 +20,7 @@ mod tests {
             id: None,
             name: "example.com".to_string(),
             registrar: Some("Namecheap".to_string()),
-            amount: Some(12.99),
+            cost: Some(12.99),
             currency: Some("USD".to_string()),
             registration_date: Some("2024-01-01".to_string()),
             expiry_date: "2025-01-01".to_string(),

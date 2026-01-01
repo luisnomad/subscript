@@ -98,6 +98,56 @@ For current and upcoming tasks, see [TASKS.md](TASKS.md).
 
 ### Tauri Commands - Email Sync
 - [x] `trigger_email_sync` - Manual sync trigger (placeholder)
+
+---
+
+## ✅ Phase 4.5: Code Review & Bug Fixes
+
+- [x] Write integration tests
+  - [x] Test full Tauri command flow (Rust + TypeScript)
+  - [x] Test data transformation between frontend and backend
+  - [x] Test error handling and edge cases
+  - [x] Mock database operations
+- [x] Achieve >80% code coverage for utilities
+- [x] Achieve >70% code coverage for Rust commands
+- [x] All data models have serialization tests
+- [x] All Tauri commands have integration tests
+
+---
+
+## ✅ Phase 6: Email Processing Pipeline
+
+- [x] Implement `fetch_unread_emails` in `imap.rs`
+- [x] Implement email parsing using `mailparse`
+- [x] Extract attachments (PDF, images) and email body
+- [x] Handle [test] subject prefix for routing to test database
+- [x] Implement `ensure_markitdown` to check/install the tool
+- [x] Enhance `convert_to_markdown` to handle different file types
+- [x] Add support for converting email body (HTML/Text) to markdown
+- [x] Define structured prompt for receipt analysis
+- [x] Implement JSON response parsing in `ollama.rs`
+- [x] Handle different extraction types (subscription, domain, junk)
+- [x] Implement confidence score extraction
+- [x] Create `SyncService` to coordinate the pipeline
+- [x] Implement background sync task (30-minute interval)
+- [x] Save extracted data to `pending_imports` table
+- [x] Archive original receipts in `receipts` table
+- [x] Implement manual sync trigger command
+- [x] Implement `SyncLog` tracking for sync history
+- [x] Unify naming conventions (`amount` -> `cost`) across all layers
+- [x] Add unit tests for email parsing and content extraction logic
+
+---
+
+## ✅ Phase 7: Testing (Unit & Component)
+
+- [x] Set up testing framework (Vitest)
+- [x] Write tests for utility functions (`cn`, formatting)
+- [x] Achieve >80% code coverage for utilities
+- [x] Write tests for UI components (Button, Card, Badge, Form inputs)
+- [x] Write tests for feature components (PendingImportCard, Batch actions, Edit mode)
+- [x] Mock Tauri commands for component tests
+- [x] Test Tauri command integration (Mock Rust backend, error handling, loading states)
 - [x] `get_last_sync_time` - Fetch last sync timestamp
 - [x] Add error handling and validation
 

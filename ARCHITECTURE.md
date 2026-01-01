@@ -67,7 +67,7 @@ SubScript is a local-first subscription and domain tracker with email-based rece
 CREATE TABLE subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    amount REAL NOT NULL,
+    cost REAL NOT NULL,
     currency TEXT NOT NULL DEFAULT 'USD',
     periodicity TEXT NOT NULL CHECK(periodicity IN ('monthly', 'yearly', 'one-time')),
     next_date DATE,
@@ -143,6 +143,19 @@ CREATE TABLE settings (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================
+-- SYNC LOG
+-- ============================================
+CREATE TABLE sync_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    end_time DATETIME,
+    status TEXT NOT NULL CHECK(status IN ('running', 'completed', 'failed')),
+    new_emails_count INTEGER DEFAULT 0,
+    error_message TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Default settings
 INSERT INTO settings (key, value) VALUES 
     ('display_currency', 'EUR'),
@@ -168,7 +181,7 @@ INSERT INTO settings (key, value) VALUES
 export interface Subscription {
   id: number;
   name: string;
-  amount: number;
+  cost: number;
   currency: string;
   periodicity: 'monthly' | 'yearly' | 'one-time';
   next_date: string | null; // ISO date string
@@ -223,6 +236,16 @@ export interface AppSettings {
   test_mode_enabled: string;
 }
 
+export interface SyncLog {
+  id: number;
+  start_time: string;
+  end_time: string | null;
+  status: 'running' | 'completed' | 'failed';
+  new_emails_count: number;
+  error_message: string | null;
+  created_at: string;
+}
+
 // ============================================
 // LLM EXTRACTION MODELS
 // ============================================
@@ -235,7 +258,7 @@ export interface LLMExtractionResponse {
 
 export interface SubscriptionData {
   vendor: string;
-  amount: number;
+  cost: number;
   currency: string;
   cycle: 'monthly' | 'yearly' | 'one-time';
   next_billing?: string; // ISO date
@@ -245,6 +268,8 @@ export interface SubscriptionData {
 export interface DomainData {
   domain_name: string;
   registrar?: string;
+  cost?: number;
+  currency?: string;
   expiry_date: string; // ISO date
 }
 
@@ -271,7 +296,7 @@ export interface EmailSyncStatus {
 
 export interface CreateSubscriptionForm {
   name: string;
-  amount: number;
+  cost: number;
   currency: string;
   periodicity: 'monthly' | 'yearly' | 'one-time';
   next_date: string | null;
@@ -281,6 +306,8 @@ export interface CreateSubscriptionForm {
 export interface CreateDomainForm {
   name: string;
   registrar: string;
+  cost?: number;
+  currency?: string;
   expiry_date: string;
 }
 ```
@@ -570,8 +597,8 @@ CLASSIFICATION OPTIONS:
 CONFIDENCE: Return a value from 0.0 to 1.0 indicating how confident you are.
 
 EXTRACTION RULES:
-- For subscriptions: Extract vendor name, amount, currency, billing cycle (monthly/yearly/one-time), next billing date, and category
-- For domains: Extract domain name, registrar, and expiry date
+- For subscriptions: Extract vendor name, cost, currency, billing cycle (monthly/yearly/one-time), next billing date, and category
+- For domains: Extract domain name, registrar, cost, currency, registration date, and expiry date
 - For junk: Only return type and confidence, no data field
 - All dates should be in ISO format (YYYY-MM-DD)
 - Currency codes should be 3-letter ISO codes (USD, EUR, GBP, etc.)
@@ -582,17 +609,21 @@ Return ONLY valid JSON matching this structure:
   "confidence": 0.0-1.0,
   "data": {{
     // For subscriptions:
-    "vendor": "string",
-    "amount": number,
+    "name": "string",
+    "cost": number,
     "currency": "string",
-    "cycle": "monthly" | "yearly" | "one-time",
-    "next_billing": "YYYY-MM-DD" (optional),
+    "billingCycle": "monthly" | "yearly" | "one-time",
+    "nextBillingDate": "YYYY-MM-DD" (optional),
     "category": "string" (optional)
     
     // For domains:
-    "domain_name": "string",
+    "domainName": "string",
     "registrar": "string" (optional),
-    "expiry_date": "YYYY-MM-DD"
+    "cost": number (optional),
+    "currency": "string" (optional),
+    "registrationDate": "YYYY-MM-DD" (optional),
+    "expiryDate": "YYYY-MM-DD",
+    "autoRenew": boolean (optional)
   }}
 }}
 
@@ -848,7 +879,7 @@ fn generate_receipt_path(filename: &str) -> Result<String, String> {
   <DialogContent>
     <Form onSubmit={handleSubmit}>
       <FormField name="name" label="Vendor Name" required />
-      <FormField name="amount" label="Amount" type="number" required />
+      <FormField name="cost" label="Cost" type="number" required />
       <FormField name="currency" label="Currency" type="select" options={CURRENCIES} />
       <FormField name="periodicity" label="Billing Cycle" type="select" 
         options={['monthly', 'yearly', 'one-time']} />
@@ -933,8 +964,8 @@ fn generate_receipt_path(filename: &str) -> Result<String, String> {
    - Colors: Emerald (subscription), Amber (domain), Red (junk)
 
 2. **CurrencyDisplay**
-   - Props: `amount`, `sourceCurrency`, `displayCurrency`
-   - Displays converted amount with original in tooltip
+   - Props: `cost`, `sourceCurrency`, `displayCurrency`
+   - Displays converted cost with original in tooltip
    - Example: "€10.99" with tooltip "Originally $12.99 USD"
 
 3. **DateCountdown**
